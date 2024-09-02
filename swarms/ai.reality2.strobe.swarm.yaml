@@ -1,0 +1,137 @@
+# ------------------------------------------------------------------------------------------------------
+# A Swarm of Sentants to illustrate sending events between Sentants.
+#
+# Author: Dr. Roy C. Davies
+# Date: 2024-09-02
+# Contant: http://roycdavies.github.io
+# ------------------------------------------------------------------------------------------------------
+swarm:
+  name: Strobing Light and Switch
+  description: A Swarm of Sentants to illustrate sending events between Sentants, and the use of delays.
+    
+  sentants:
+    # --------------------------------------------------------------------------------------------------
+    # Light Switch Sentant
+    # --------------------------------------------------------------------------------------------------
+    - name: Light Switch
+      description: This is a sentant for controlling a strobe light.
+      data:
+        speed: 100
+
+      automations:
+      - name: switch
+        description: This is a test automation.
+        transitions:
+
+          # turn on event
+          - event: Turn On Strobing
+            public: true
+            actions:
+
+              - command: set
+                parameters:
+                  key: speed
+                  value:
+                    data: speed
+
+              - command: debug
+
+              # Send go event to the Strobe Light Sentant
+              - command: send
+                parameters:
+                  to: Strobe Light
+                  event: go
+
+              - command: signal
+                parameters: 
+                  event: Starting Strobe
+                  public: true
+
+          # turn off event
+          - event: Turn Off Strobing
+            public: true
+            actions:
+              # Send off event to the Strobe Light Sentant
+              - command: send
+                parameters:
+                  to: Strobe Light
+                  event: stop
+
+              - command: signal
+                parameters: 
+                  event: Stopping Strobe
+                  public: true
+    # --------------------------------------------------------------------------------------------------
+
+    # --------------------------------------------------------------------------------------------------
+    # Strobe Light Sentant
+    # --------------------------------------------------------------------------------------------------
+    - name: Strobe Light
+      description: This is a Strobe Light sentant.
+      automations:
+      - name: bulb
+        description: The strobe light bulb
+        transitions:
+          # Go to the off state on initialisation
+          - from: start
+            event: init
+            to: stopped
+
+          # From any state, go to stopped when stop event received
+          - from: '*'
+            event: stop
+            to: stopped
+
+          # From any state, go to off state, and then send a turn_on event
+          - from: "*"
+            event: go
+            to: off
+            actions:
+              - command: send
+                parameters:
+                  event: turn_on
+
+          # turn_on event
+          - from: off
+            event: turn_on
+            to: on
+            actions:
+              # Set the delay
+              - command: set
+                parameters: 
+                  key: delay
+                  value: __speed__       
+
+              # Send turn_off to self after a delay
+              - command: send
+                parameters:
+                  event: turn_off
+
+              # Send a signal to watching devices
+              - command: signal
+                parameters:
+                  event: turn_on
+                  public: true  
+
+          # turn_off event
+          - from: on
+            event: turn_off
+            to: off
+            actions:
+              # Set the delay
+              - command: set
+                parameters: 
+                  key: delay
+                  value: __speed__
+
+              # Send turn_on to self after a delay
+              - command: send
+                parameters:
+                  event: turn_on
+
+              # Send a signal to watching devices
+              - command: signal
+                parameters:
+                  event: turn_off
+                  public: true
+    # --------------------------------------------------------------------------------------------------
