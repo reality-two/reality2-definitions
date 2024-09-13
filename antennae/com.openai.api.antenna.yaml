@@ -1,0 +1,18 @@
+plugin:
+  name: com.openai.api
+  url: https://api.openai.com/v1/chat/completions
+  method: POST
+  headers:
+    Content-Type: application/json
+    Authorization: Bearer __openai_api_key__
+  body:
+    model: gpt-3.5-turbo-1106
+    messages:
+      - role: system
+        content: You are a helpful assistant.
+      - role: user
+        content: __question__
+  output:
+    key: answer
+    value: choices.0.message.content
+    event: chatgpt_response

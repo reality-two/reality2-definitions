@@ -1,0 +1,10 @@
+plugin:
+  name: io.zenquotes.api
+  url: https://zenquotes.io/api/random
+  method: GET
+  headers:
+    Content-Type: application/json
+  output:
+    key: zenquote
+    value: 0.q
+    event: chatgpt
