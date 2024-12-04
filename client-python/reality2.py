@@ -1,11 +1,13 @@
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # Reality2 class for connecting to a Reality2 Node
 # Author: Roy Davies, 2024, roycdavies.github.io
+# Version: 0.0.1
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 import json
 import time
 import threading
-from websockets.sync.client import connect, ssl
+from websockets.client import connect
+import ssl
 
 import requests
 
