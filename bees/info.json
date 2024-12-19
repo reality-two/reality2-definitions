@@ -1,0 +1,30 @@
+{
+    "backup_test": {
+        "name": "Backup Test",
+        "description": "Test moving up data between event calls."
+    },
+    "chatgpt": {
+        "naem": "Chat GPT",
+        "description": "Ask Chat GPT a question"
+    },
+    "monitor": {
+        "name": "Monitor Node",
+        "description": "Monitor the internal activities on a Reality2 Node."
+    },
+    "parameters_test": {
+        "name": "Parameters Test",
+        "description": "Test Data Streams and Parameters."
+    },
+    "rust_plugin_test": {
+        "name": "Rust Test",
+        "description": "Test the use of Rust as a plugin."
+    },
+    "zenquote_to_chatgpt": {
+        "name": "Zenquote to ChatGPT",
+        "description": "Get a Zenquote, the get ChatGPT to explain it."
+    },
+    "zenquote": {
+        "name": "Zenquote",
+        "description": "Get a random Zenquote"
+    }
+}
