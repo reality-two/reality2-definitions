@@ -4,7 +4,7 @@
         "description": "Test moving up data between event calls."
     },
     "chatgpt": {
-        "naem": "Chat GPT",
+        "name": "Chat GPT",
         "description": "Ask Chat GPT a question"
     },
     "monitor": {
