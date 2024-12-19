@@ -1,0 +1,28 @@
+  # ----------------------------------------------------------------------------------------------------
+  # OpenAI ChatGPT Automation (assumes com.openai.api plugin is available)
+  # ----------------------------------------------------------------------------------------------------
+  automation:
+    - name: ChatGPT # This is the name of the automation.
+      description: This is a test automation. # This is the description of the automation.
+      transitions: # This is a list of transitions, so begin with a dash.
+
+          # Send a message (question) to ChatGPT, initiated from an event.
+        - event: "Ask ChatGPT"
+          parameters: 
+            question: string
+          public: true
+          actions:
+            - plugin: com.openai.api
+              command: send
+
+          # Get the answer from ChatGPT and send out as a signal.
+        - event: chatgpt_response
+          actions:
+            - command: set
+              parameters:
+                key: question
+            - command: signal # sends a signal to subscribed clients
+              public: true
+              parameters:
+                event: "ChatGPT Answer"
+  # ----------------------------------------------------------------------------------------------------
