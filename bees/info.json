@@ -1,11 +1,15 @@
 {
     "backup_test": {
         "name": "Backup Test",
-        "description": "Test moving up data between event calls."
+        "description": "Test data storage and retrieval from backup between actions."
     },
     "chatgpt": {
         "name": "Chat GPT",
-        "description": "Ask Chat GPT a question"
+        "description": "Ask Chat GPT a question."
+    },
+    "geospatial": {
+        "name": "GeoSpatial Bee",
+        "description": "An example Geospatial Bee that uses the GeoSpatial plugin.  See example in client-python folder of setting up many geospatial Bees."
     },
     "monitor": {
         "name": "Monitor Node",
@@ -21,10 +25,10 @@
     },
     "zenquote_to_chatgpt": {
         "name": "Zenquote to ChatGPT",
-        "description": "Get a Zenquote, the get ChatGPT to explain it."
+        "description": "Get a random Zenquote, then get ChatGPT to explain it."
     },
     "zenquote": {
         "name": "Zenquote",
-        "description": "Get a random Zenquote"
+        "description": "Get a random Zenquote."
     }
 }
