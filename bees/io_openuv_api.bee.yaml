@@ -7,7 +7,7 @@ sentant:
       url: https://api.openuv.io/api/v1/uv
       method: GET
       headers:
-        x-access-token: openuv-1d00uirm6napz5h-io
+        x-access-token: __openuv_api_key__
       parameters:
         lat: __lat__
         lng: __lng__
