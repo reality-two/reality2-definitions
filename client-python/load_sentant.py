@@ -8,7 +8,7 @@
 # The host is the IP address or domain name of the Reality2 node (default is localhost).
 # ----------------------------------------------------------------------------------------------------
 
-from reality2 import Reality2 as R2
+from reality2_copy import Reality2 as R2
 import sys
 import time
 import json
@@ -19,6 +19,7 @@ import copy
 import ruamel.yaml
 import re
 import base64
+import asyncio
 
 yaml = ruamel.yaml.YAML(typ='safe')
 print_cr = False
@@ -150,6 +151,8 @@ def main(filename, host, port):
     # ------------------------------------------------------------------------------------------------
     if exists('../../../variables.json'):
         definition = replace_variables(definition, '../../../variables.json')
+    if exists('../../variables.json'):
+        definition = replace_variables(definition, '../../variables.json')
     if exists('./variables.json'):
         definition = replace_variables(definition, './variables.json')
         

@@ -1,0 +1,40 @@
+sentant:
+  name: Get UV
+  description: Get a UV value
+  plugins:
+    - name: io.openuv.api
+      description: Get UV settings from OpenUV
+      url: https://api.openuv.io/api/v1/uv
+      method: GET
+      headers:
+        x-access-token: openuv-1d00uirm6napz5h-io
+      parameters:
+        lat: __lat__
+        lng: __lng__
+      output:
+        key: uv
+        value: ''
+        event: uv_out
+  automations:
+    - name: get_uv
+      description: Get UV Settings
+      transitions:
+        - public: true
+          event: Get UV
+          actions:
+            - command: set
+              parameters:
+                key: lat
+                value: -36.86197617498943
+            - command: set
+              parameters:
+                key: lng
+                value: 174.59771806708156
+            - command: send
+              plugin: io.openuv.api
+        - event: uv_out
+          actions:
+            - command: signal
+              parameters:
+                event: UV
+                public: true

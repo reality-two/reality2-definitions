@@ -144,6 +144,8 @@ def main(filename, host, port):
     # ------------------------------------------------------------------------------------------------
     if exists('../../../variables.json'):
         definition = replace_variables(definition, '../../../variables.json')
+    if exists('../../variables.json'):
+        definition = replace_variables(definition, '../../variables.json')
     if exists('./variables.json'):
         definition = replace_variables(definition, './variables.json')
         

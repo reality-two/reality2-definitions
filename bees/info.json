@@ -23,6 +23,10 @@
         "name": "Rust Test",
         "description": "Test the use of Rust as a plugin."
     },
+    "io.openuv.io": {
+        "name": "OpenUV",
+        "description": "Explore the OpenUV API to get information about sun times and UV exposure in your region."
+    },
     "zenquote_to_chatgpt": {
         "name": "Zenquote to ChatGPT",
         "description": "Get a random Zenquote, then get ChatGPT to explain it."
