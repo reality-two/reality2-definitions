@@ -23,7 +23,7 @@
         "name": "Rust Test",
         "description": "Test the use of Rust as a plugin."
     },
-    "io.openuv.io": {
+    "io_openuv_api": {
         "name": "OpenUV",
         "description": "Explore the OpenUV API to get information about sun times and UV exposure in your region."
     },
