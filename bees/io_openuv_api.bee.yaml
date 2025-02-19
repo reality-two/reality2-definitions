@@ -9,8 +9,8 @@ sentant:
       headers:
         x-access-token: __openuv_api_key__
       parameters:
-        lat: __lat__
-        lng: __lng__
+        lat: __latitude__
+        lng: __longitude__
       output:
         key: uv
         value: ''
@@ -22,14 +22,6 @@ sentant:
         - public: true
           event: Get UV
           actions:
-            - command: set
-              parameters:
-                key: lat
-                value: -36.86197617498943
-            - command: set
-              parameters:
-                key: lng
-                value: 174.59771806708156
             - command: send
               plugin: io.openuv.api
         - event: uv_out
