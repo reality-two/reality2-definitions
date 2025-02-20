@@ -1,0 +1,71 @@
+sentant:
+  name: openuv_to_chatgpt
+  description: Get a UV value
+  plugins:
+    - name: io.openuv.api
+      description: Get UV settings from OpenUV
+      url: https://api.openuv.io/api/v1/uv
+      method: GET
+      headers:
+        x-access-token: __openuv_api_key__
+      parameters:
+        lat: __latitude__
+        lng: __longitude__
+      output:
+        key: uv
+        value: ''
+        event: uv_out
+    - name: com.openai.api
+      url: https://api.openai.com/v1/chat/completions
+      method: POST
+      headers:
+        Content-Type: application/json
+        Authorization: Bearer __openai_api_key__
+      body:
+        model: gpt-3.5-turbo-1106
+        messages:
+          - role: system
+            content: You are a helpful assistant.
+          - role: user
+            content: __question__
+      output:
+        key: answer
+        value: choices.0.message.content
+        event: chatgpt_response
+  automations:
+    - name: get_uv
+      description: Get UV Settings
+      transitions:
+        - public: true
+          event: Get Burn Time
+          parameters:
+            skin_type: string
+          actions:
+            - command: send
+              plugin: io.openuv.api
+        - event: uv_out
+          actions:
+            - command: signal
+              parameters:
+                event: UV
+                public: true
+            - command: set
+              parameters:
+                key: question
+                value: >-
+                  Given this data, how many minutes can I safely stay in the sun
+                  before I burn?  I have __skin_type__ skin.: __uv__?
+            - command: send
+              plugin: com.openai.api
+        - event: chatgpt_response
+          actions:
+            - command: set
+              parameters:
+                key: question
+            - command: set
+              parameters:
+                key: uv
+            - command: signal
+              parameters:
+                event: BurnTime
+                public: true

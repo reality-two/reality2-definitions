@@ -27,6 +27,10 @@
         "name": "OpenUV",
         "description": "Explore the OpenUV API to get information about sun times and UV exposure in your region."
     },
+    "openuv_to_chatgpt": {
+        "name": "Burn Time",
+        "description": "Get ChatGPT to explain the data from OpenUV and say how long onw can safely stay in the sun for a given skin type."
+    },
     "zenquote_to_chatgpt": {
         "name": "Zenquote to ChatGPT",
         "description": "Get a random Zenquote, then get ChatGPT to explain it."
