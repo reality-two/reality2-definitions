@@ -15,7 +15,7 @@ import serial
 import time
 import re
 import pygeohash
-from pyubx2 import UBXReader    # https://pypi.org/project/pyubx2/
+# from pyubx2 import UBXReader    # https://pypi.org/project/pyubx2/
 from requests import *
 
 from reality2 import Reality2
@@ -24,7 +24,8 @@ from fsm import *
 # ====================================================================================================
 # Variables
 # ====================================================================================================
-reality2 = "/root/Reality2/Reality2/SBC/unihiker/start_reality2"
+reality2_dir = "/root/aarch64_GNU_Linux/reality2/"
+reality2_cmd = reality2_dir + "run"
 unihiker_config_file = "/opt/unihiker/pyboardUI/config.cfg"
 unihiker_config = {}
 led = ""
@@ -268,7 +269,7 @@ def check_server(is_running):
 # Start Reality2 Node
 # ----------------------------------------------------------------------------------------------------
 def start_thread():
-    subprocess.run([reality2, "daemon"])
+    subprocess.run([reality2_cmd, reality2_dir])
 
 def start_reality2(is_running):
     global Reality2FSM
@@ -461,11 +462,11 @@ Reality2FSM.add(Transition("*",                "b_button",         "quitting",  
 # ----------------------------------------------------------------------------------------------------
 
 # Open the serial port for the GPS unit
-gps_serial_port = extract_serial_port(list(port_list.comports()))
+# gps_serial_port = extract_serial_port(list(port_list.comports()))
 
-if (gps_serial_port != None):  
-    s = serial.Serial(gps_serial_port, 9600)
-    ubr = UBXReader(s)
+# if (gps_serial_port != None):  
+#     s = serial.Serial(gps_serial_port, 9600)
+#     ubr = UBXReader(s)
 
 # Initialise various things
 initialise()
@@ -477,19 +478,19 @@ Reality2FSM.go()
 print ("Waiting for events")
 # Wait until the end
 while running:
-    if (gps_serial_port != None):
-        (raw_data, parsed_data) = ubr.read()
+    # if (gps_serial_port != None):
+    #     (raw_data, parsed_data) = ubr.read()
         
-        (lat, lon) = extract_lat_lon(str(parsed_data))
-        if (lat != None):
-            geohash = pygeohash.encode(lat, lon)
-            if (geohash != prev_geohash):
-                gpsGUI.config(text=geohash)
-                set_geobot_position(trackedgeobot, geohash)
-                print(lat, lon, geohash)
-                prev_geohash = geohash
-    else:
-        gpsGUI.config(text="no gps")
+    #     (lat, lon) = extract_lat_lon(str(parsed_data))
+    #     if (lat != None):
+    #         geohash = pygeohash.encode(lat, lon)
+    #         if (geohash != prev_geohash):
+    #             gpsGUI.config(text=geohash)
+    #             set_geobot_position(trackedgeobot, geohash)
+    #             print(lat, lon, geohash)
+    #             prev_geohash = geohash
+    # else:
+    #     gpsGUI.config(text="no gps")
             
     time.sleep(0.1)
 
