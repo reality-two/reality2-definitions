@@ -2,9 +2,7 @@ use python3 START.py to get started, or set up in the unihiker to run that pytho
 
 You may well have to install somelibraries for Python, such as:
 
-pip3 install ifaddr
-pip3 install pygeohash
-pip3 install websockets
+pip3 install ifaddr pygeohash websockets
 
 If you are planning to use the GPS module:
 pip3 install pyubx2  

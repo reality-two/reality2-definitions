@@ -1,0 +1,25 @@
+To change the IP Address of the unihiker, for when you have more than one connected at once, do the following:
+
+1.  Edit the file /etc/dhcp/dhcpd.conf
+
+Change the lines so that the first number of the subnet address is different.
+It defaults to 10, so use 11, 12, 13 etc.
+
+subnet 11.1.2.0 netmask 255.255.255.0 {
+    range 11.1.2.101 11.1.2.200;
+    host br0 {
+        fixed-address 11.1.2.3;
+    }
+}
+
+2. edit the file /root/.xsessionrc and add the following lines.  Make sure you have the same address as above.
+
+ifconfig br0 11.1.2.3 netmask 255.255.255.0 up
+systemctl restart isc-dhcp-server 
+
+3. Restart the unihiker
+
+reboot
+
+WARNING: If you get it wrong, and the unihiker is not connected to a wifi network, you'll have no easy way to
+log into it again.  The only fix would be to flash the firmware (or plug in a wired network dongle into the USB).

@@ -1,6 +1,0 @@
-echo 20 > /sys/class/gpio/export
-echo out > /sys/class/gpio/gpio20/direction
-echo 1 > /sys/class/gpio/gpio20/value
-systemctl --user start PyboardUI
-ifconfig br0 11.1.2.3 netmask 255.255.255.0 up
-systemctl restart isc-dhcp-server 

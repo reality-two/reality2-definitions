@@ -1,0 +1,20 @@
+To change the Hotspot details, edit this file:
+
+/opt/unihiker/pyboardUI/config.cfg
+
+{
+    "language": "en.json", 
+    "path": "/opt/unihiker/pyboardUI/run/root/aarch64_GNU_Linux/reality2/client-SBC/unihiker", 
+    "file": "/opt/unihiker/pyboardUI/run/root/aarch64_GNU_Linux/reality2/client-SBC/unihiker/START.py", 
+    "ap": true, 
+    "apName": "reality2_12", 
+    "apPassword": "reality2_12", 
+    "apProto": "wpa rsn", 
+    "apPairwise": "tkip ccmp", 
+    "Jupyter": false, 
+    "SIoT": true, 
+    "siotVersion": "v1", 
+    "FileShare": true, 
+    "ScreenShare": true, 
+    "AutoStart": true
+}
