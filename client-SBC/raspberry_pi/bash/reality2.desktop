@@ -1,0 +1,5 @@
+[Desktop Entry]
+Type=Application
+Name=Reality2
+Exec=lxterminal -e bash -i -c '/home/reality2/reality2/client-SBC/raspberry_pi/bash/autostart.sh'
+Terminal=false
