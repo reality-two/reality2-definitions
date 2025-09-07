@@ -1,0 +1,107 @@
+swarm:
+  name: Sensor Alert to TXT Notification.
+  sentants:
+    - name: Test incoming
+      description: Test the incoming data and produce a suitable alert.
+      automations:
+        - name: test
+          description: Do the testing
+          transitions:
+            - from: start
+              event: init
+              to: ready
+            - public: true
+              event: data
+              parameters:
+                id: string
+                name: string
+                data: number
+              actions:
+                - command: test
+                  parameters:
+                    if:
+                      <:
+                        - data
+                        - 3
+                    then: red_alert
+                    else: orange_alert
+        - name: whatsapp
+          description: description
+          transitions:
+            - event: red_alert
+              actions:
+                - command: set
+                  parameters:
+                    key: alert
+                    value: red_alert
+                - command: send
+                  parameters:
+                    event: message
+                    to: Send TXT with Twilio
+            - event: orange_alert
+              actions:
+                - command: set
+                  parameters:
+                    key: alert
+                    value: orange_alert
+                - command: send
+                  parameters:
+                    event: message
+                    to: Send TXT with Twilio
+    - name: Send TXT with Twilio
+      description: description
+      plugins:
+        - name: com.twilio.api
+          description: Send a TXT using Twilio
+          url: >-
+            https://api.twilio.com/2010-04-01/Accounts/__twilio_account__/Messages.json
+          method: POST
+          headers:
+            Authorization: 'Basic __twilio_token__ '
+            Content-Types: application/x-www-form-urlencoded
+          body: To=__phone__&From=%2B15024611693&Body=__message__
+          output:
+            key: result
+            value: ''
+            event: twilio_response
+      automations:
+        - name: Roys Phone
+          description: Roys WhatsApp Phone Number
+          transitions:
+            - event: message
+              actions:
+                - command: set
+                  parameters:
+                    key: phone
+                    value: 64277795294
+                - command: set
+                  parameters:
+                    key: message
+                    value: '__id__ : __name__ : __data__ : __alert__'
+                - command: set
+                  parameters:
+                    key: id
+                - command: set
+                  parameters:
+                    key: name
+                - command: set
+                  parameters:
+                    key: data
+                - command: set
+                  parameters:
+                    key: alert
+                - command: signal
+                  parameters:
+                    event: Alert
+                    public: true
+                - command: send
+                  plugin: com.twilio.api
+            - event: twilio_response
+              actions:
+                - command: set
+                  parameters:
+                    key: message
+                - command: signal
+                  parameters:
+                    event: Response
+                    public: true

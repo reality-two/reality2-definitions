@@ -1,0 +1,119 @@
+swarm:
+  name: Sensor Alert to WhatsApp Notification.
+  sentants:
+    - name: Send WhatsApp Message
+      description: Send a Message using WhatsApp
+      plugins:
+        - name: com.facebook.graph
+          url: https://graph.facebook.com/v22.0/737679039436737/messages
+          method: POST
+          headers:
+            Content-Type: application/json
+            Authorization: >-
+              Bearer
+              EAAZA3ye8zNHEBPTG3SWKEEUsIw11uA5ZCqW1VsxQB6k6kRFQzeuvWTXhzns3wZCRpI2mwGv8P2AberqifuSctdVQBuWDcDHxQZBk8eNCh9F2lh6fNLHXVPrDY89ZBZBpNco0ZA6eVD9diQQjAEEr1EXh1uhWjczhZAeJUeWGeRNK3NBaRX2yuI7DGW9JrWgtHfdFBHoNVZA955v2NLxy7q9Bz28LZBBVCbj47berxs5MFvq22Ybe9diarMMBXxqSwZD
+          body:
+            messaging_product: whatsapp
+            to: __phone__
+            type: template
+            template:
+              name: from_lora
+              language:
+                code: en
+              components:
+                - type: body
+                  parameters:
+                    - type: text
+                      text: __message__
+          output:
+            key: response
+            value: ''
+            event: whatsapp_response
+      automations:
+        - name: Roys Phone
+          description: Roys WhatsApp Phone Number
+          transitions:
+            - event: message
+              actions:
+                - command: set
+                  parameters:
+                    key: phone
+                    value: 64277795294
+                - command: set
+                  parameters:
+                    key: message
+                    value: '__id__ : __name__ : __data__ : __alert__'
+                - command: set
+                  parameters:
+                    key: id
+                - command: set
+                  parameters:
+                    key: name
+                - command: set
+                  parameters:
+                    key: data
+                - command: set
+                  parameters:
+                    key: alert
+                - command: signal
+                  parameters:
+                    event: Alert
+                    public: true
+                - command: send
+                  plugin: com.facebook.graph
+            - event: whatsapp_response
+              actions:
+                - command: set
+                  parameters:
+                    key: message
+                - command: signal
+                  parameters:
+                    event: WhatsApp Response
+                    public: true
+    - name: Test incoming
+      description: Test the incoming data and produce a suitable alert.
+      automations:
+        - name: test
+          description: Do the testing
+          transitions:
+            - from: start
+              event: init
+              to: ready
+            - public: true
+              event: data
+              parameters:
+                id: string
+                name: string
+                data: number
+              actions:
+                - command: test
+                  parameters:
+                    if:
+                      <:
+                        - data
+                        - 3
+                    then: red_alert
+                    else: orange_alert
+        - name: whatsapp
+          description: description
+          transitions:
+            - event: red_alert
+              actions:
+                - command: set
+                  parameters:
+                    key: alert
+                    value: red_alert
+                - command: send
+                  parameters:
+                    event: message
+                    to: Send WhatsApp Message
+            - event: orange_alert
+              actions:
+                - command: set
+                  parameters:
+                    key: alert
+                    value: orange_alert
+                - command: send
+                  parameters:
+                    event: message
+                    to: Send WhatsApp Message
