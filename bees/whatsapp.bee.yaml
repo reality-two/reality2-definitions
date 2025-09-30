@@ -1,5 +1,5 @@
 # ------------------------------------------------------------------------------------------------------
-# A Sentant to illustrate how a plugin to an external API can be used.
+# A Sentant to illustrate how a plugin to an external API can be used.  This uses WhatsApp Templates.
 #
 # Author: Dr. Roy C. Davies
 # Date: 2025-08-31
@@ -30,17 +30,17 @@ sentant:
       # This is the body to send (see Meta Whatsapp API documentation).
       body:
         messaging_product: "whatsapp"
-        to: "64277795294"
+        to: "__phone_number__"
         type: "template"
         template:
-          name: "from_lora"
+          name: "simple_message"
           language: 
             code: "en_US"
           components:
             - type: "body"
               parameters:
                 - type: "text"
-                  text: "Test Message"
+                  text: "__message__"
             
 
       # How to process the output from the API.  The value is a simplified JSON path expression.

@@ -1,14 +1,14 @@
-  plugin:
-    name: io.openuv.api
-    description: Get UV settings from OpenUV
-    url: https://api.openuv.io/api/v1/uv
-    method: GET
-    headers:
-      x-access-token: __openuv_api_key__
-    parameters:
-      lat: __lat__
-      lng: __lng__
-    output:
-      key: uv
-      value: ''
-      event: uv_out
+plugin:
+  name: io.openuv.api
+  description: Get UV settings from OpenUV
+  url: https://api.openuv.io/api/v1/uv
+  method: GET
+  headers:
+    x-access-token: __openuv_api_key__
+  parameters:
+    lat: __lat__
+    lng: __lng__
+  output:
+    key: uv
+    value: ''
+    event: uv_out

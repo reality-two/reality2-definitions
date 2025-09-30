@@ -40,7 +40,11 @@
         "description": "Get a random Zenquote."
     },
     "twilio": {
-        "name": "Twilio SMS API",
+        "name": "Twilio send SMS",
         "description": "Send a TXT message via the Twilio API."
+    },
+    "whatsapp": {
+        "name": "WhatsApp send Message",
+        "descripotion": "Send a message via the WhatsApp API."
     }
 }
