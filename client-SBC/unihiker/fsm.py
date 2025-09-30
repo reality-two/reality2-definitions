@@ -68,7 +68,7 @@ class Automation:
                
                 break  
             
-    # Take a step in then FSM time - check for new events and see if a timed event has occured
+    # Take a step in the FSM time - check for new events and see if a timed event has occured
     def _step(self):
         if (len(self._eventqueue) > 0):
             eventtuple = self._eventqueue.pop(0)

@@ -1,0 +1,44 @@
+# ------------------------------------------------------------------------------------------------
+# Send a Txt using the Twilio API - change the __twilio_account__ and __twilio_token__ to match
+# your Twilio account settings and __from_phone__ as the Twilio phone number to send from.
+# ------------------------------------------------------------------------------------------------
+- name: Send TXT with Twilio
+  description: description
+  plugins:
+    - name: com.twilio.api
+      description: Send a TXT using Twilio
+      url: >-
+        https://api.twilio.com/2010-04-01/Accounts/__twilio_account__/Messages.json
+      method: POST
+      headers:
+        Authorization: 'Basic __twilio_token__ '
+        Content-Types: application/x-www-form-urlencoded
+      body: To=__phone__&From=__from_phone__&Body=__message__
+      output:
+        key: result
+        value: ''
+        event: twilio_response
+  automations:
+    - name: Roys Phone
+      description: Roys WhatsApp Phone Number
+      transitions:
+        - event: message
+          parameters: 
+            phone: string
+            message: string
+          actions:
+            - command: signal
+              parameters:
+                event: Send Message
+                public: true
+            - command: send
+              plugin: com.twilio.api
+        - event: twilio_response
+          actions:
+            - command: set
+              parameters:
+                key: message
+            - command: signal
+              parameters:
+                event: Response
+                public: true

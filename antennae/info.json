@@ -10,5 +10,9 @@
     "io.zenquotes.api": {
         "name": "Zenquote GET API",
         "description": "API to Zenquotes, a free site to get random inspirational quotes."
+    },
+    "com.twilio.api":{
+        "name": "Twilio SMS API",
+        "description": "Send a TXT message via the Twilio API."        
     }
 }
