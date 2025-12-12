@@ -8,7 +8,7 @@
 # The host is the IP address or domain name of the Reality2 node (default is localhost).
 # ----------------------------------------------------------------------------------------------------
 
-from reality2_copy import Reality2 as R2
+from reality2 import Reality2 as R2
 import sys
 import time
 import json

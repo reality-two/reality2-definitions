@@ -6,7 +6,7 @@
 import json
 import time
 import threading
-from websockets.client import connect
+from websockets.sync.client import connect
 import ssl
 
 import requests
