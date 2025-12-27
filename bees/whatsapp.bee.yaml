@@ -34,14 +34,13 @@ sentant:
         type: "template"
         template:
           name: "simple_message"
-          language: 
+          language:
             code: "en_US"
           components:
             - type: "body"
               parameters:
                 - type: "text"
                   text: "__message__"
-            
 
       # How to process the output from the API.  The value is a simplified JSON path expression.
       output:
@@ -57,10 +56,9 @@ sentant:
     - name: WhatsApp # This is the name of the automation.
       description: This is a test automation for WhatsApp. # This is the description of the automation.
       transitions: # This is a list of transitions, so begin with a dash.
-
-          # Send a message (question) to ChatGPT, initiated from an event.
+        # Send a message (question) to ChatGPT, initiated from an event.
         - event: "Send Message"
-          parameters: 
+          parameters:
             message: string
           public: true
           actions:

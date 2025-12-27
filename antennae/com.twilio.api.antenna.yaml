@@ -5,10 +5,10 @@ plugin:
       https://api.twilio.com/2010-04-01/Accounts/__twilio_account__/Messages.json
     method: POST
     headers:
-      Authorization: 'Basic __twilio_token__ '
+      Authorization: "Basic __twilio_token__ "
       Content-Types: application/x-www-form-urlencoded
     body: To=__phone__&From=__from_phone__&Body=__message__
     output:
       key: result
-      value: ''
+      value: ""
       event: twilio_response

@@ -1,19 +1,17 @@
 {
   "sentant": {
-    "name": "monitor",
+    "name": "Transnet Test",
     "automations": [
       {
-        "name": "Monitor",
+        "name": "Automation1",
         "transitions": [
           {
+            "public": false,
             "event": "__internal",
             "actions": [
               {
                 "command": "signal",
-                "parameters": {
-                  "public": true,
-                  "event": "internal"
-                }
+                "parameters": { "event": "result", "public": true }
               }
             ]
           }

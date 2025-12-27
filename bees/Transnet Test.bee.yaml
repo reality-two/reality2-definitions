@@ -1,0 +1,27 @@
+sentant:
+  name: Transnet Test
+  automations:
+    - name: List Adapters
+      description: List Bluetooth Adapters
+      transitions:
+        - public: true
+          event: List Adapters
+          actions:
+            - command: list_adapters
+              plugin: ai.reality2.transnet
+    - name: Scan Devices
+      description: List Bluetooth Adapters
+      transitions:
+        - public: true
+          event: Scan Devices
+          actions:
+            - command: scan_devices
+              plugin: ai.reality2.transnet
+    - name: Result
+      transitions:
+        - event: __internal
+          actions:
+            - command: signal
+              parameters:
+                event: result
+                public: true

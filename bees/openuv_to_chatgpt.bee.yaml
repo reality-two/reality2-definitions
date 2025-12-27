@@ -13,7 +13,7 @@ sentant:
         lng: __longitude__
       output:
         key: uv
-        value: ''
+        value: ""
         event: uv_out
     - name: com.openai.api
       url: https://api.openai.com/v1/chat/completions
@@ -67,7 +67,7 @@ sentant:
             - command: set
               parameters:
                 key: question
-                value: 'Given this data, __ask__?  : __uv__?'
+                value: "Given this data, __ask__?  : __uv__?"
             - command: send
               plugin: com.openai.api
         - event: chatgpt_response

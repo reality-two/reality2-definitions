@@ -1,18 +1,18 @@
 {
-    "com.openai.api": {
-        "name": "OpenAI ChatGPT API",
-        "description": "API to ChatGPT to ask a single question, without history."
-    },
-    "io.openuv.api": {
-        "name": "OpenUV GET API",
-        "description": "API to OpenUV, a free site to get details about burn time and sun rising and setting times."
-    },
-    "io.zenquotes.api": {
-        "name": "Zenquote GET API",
-        "description": "API to Zenquotes, a free site to get random inspirational quotes."
-    },
-    "com.twilio.api":{
-        "name": "Twilio SMS API",
-        "description": "Send a TXT message via the Twilio API."        
-    }
+  "com.openai.api": {
+    "name": "OpenAI ChatGPT API",
+    "description": "API to ChatGPT to ask a single question, without history."
+  },
+  "io.openuv.api": {
+    "name": "OpenUV GET API",
+    "description": "API to OpenUV, a free site to get details about burn time and sun rising and setting times."
+  },
+  "io.zenquotes.api": {
+    "name": "Zenquote GET API",
+    "description": "API to Zenquotes, a free site to get random inspirational quotes."
+  },
+  "com.twilio.api": {
+    "name": "Twilio SMS API",
+    "description": "Send a TXT message via the Twilio API."
+  }
 }

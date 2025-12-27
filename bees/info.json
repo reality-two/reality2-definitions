@@ -1,50 +1,50 @@
 {
-    "backup_test": {
-        "name": "Backup Test",
-        "description": "Test data storage and retrieval from backup between actions."
-    },
-    "chatgpt": {
-        "name": "Chat GPT",
-        "description": "Ask Chat GPT a question."
-    },
-    "geospatial": {
-        "name": "GeoSpatial Bee",
-        "description": "An example Geospatial Bee that uses the GeoSpatial plugin.  See example in client-python folder of setting up many geospatial Bees."
-    },
-    "monitor": {
-        "name": "Monitor Node",
-        "description": "Monitor the internal activities on a Reality2 Node."
-    },
-    "parameters_test": {
-        "name": "Parameters Test",
-        "description": "Test Data Streams and Parameters."
-    },
-    "rust_plugin_test": {
-        "name": "Rust Test",
-        "description": "Test the use of Rust as a plugin."
-    },
-    "openuv": {
-        "name": "OpenUV",
-        "description": "Explore the OpenUV API to get information about sun times and UV exposure in your region."
-    },
-    "openuv_to_chatgpt": {
-        "name": "Burn Time",
-        "description": "Get ChatGPT to explain the data from OpenUV and say how long onw can safely stay in the sun for a given skin type."
-    },
-    "zenquote_to_chatgpt": {
-        "name": "Zenquote to ChatGPT",
-        "description": "Get a random Zenquote, then get ChatGPT to explain it."
-    },
-    "zenquote": {
-        "name": "Zenquote",
-        "description": "Get a random Zenquote."
-    },
-    "twilio": {
-        "name": "Twilio send SMS",
-        "description": "Send a TXT message via the Twilio API."
-    },
-    "whatsapp": {
-        "name": "WhatsApp send Message",
-        "descripotion": "Send a message via the WhatsApp API."
-    }
+  "backup_test": {
+    "name": "Backup Test",
+    "description": "Test data storage and retrieval from backup between actions."
+  },
+  "chatgpt": {
+    "name": "Chat GPT",
+    "description": "Ask Chat GPT a question."
+  },
+  "geospatial": {
+    "name": "GeoSpatial Bee",
+    "description": "An example Geospatial Bee that uses the GeoSpatial plugin.  See example in client-python folder of setting up many geospatial Bees."
+  },
+  "monitor": {
+    "name": "Monitor Node",
+    "description": "Monitor the internal activities on a Reality2 Node."
+  },
+  "parameters_test": {
+    "name": "Parameters Test",
+    "description": "Test Data Streams and Parameters."
+  },
+  "rust_plugin_test": {
+    "name": "Rust Test",
+    "description": "Test the use of Rust as a plugin."
+  },
+  "openuv": {
+    "name": "OpenUV",
+    "description": "Explore the OpenUV API to get information about sun times and UV exposure in your region."
+  },
+  "openuv_to_chatgpt": {
+    "name": "Burn Time",
+    "description": "Get ChatGPT to explain the data from OpenUV and say how long onw can safely stay in the sun for a given skin type."
+  },
+  "zenquote_to_chatgpt": {
+    "name": "Zenquote to ChatGPT",
+    "description": "Get a random Zenquote, then get ChatGPT to explain it."
+  },
+  "zenquote": {
+    "name": "Zenquote",
+    "description": "Get a random Zenquote."
+  },
+  "twilio": {
+    "name": "Twilio send SMS",
+    "description": "Send a TXT message via the Twilio API."
+  },
+  "whatsapp": {
+    "name": "WhatsApp send Message",
+    "descripotion": "Send a message via the WhatsApp API."
+  }
 }
