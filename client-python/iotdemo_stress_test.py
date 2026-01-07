@@ -149,9 +149,10 @@ def do_in_parallel(r2_node, ids, device_num):
 def main(host):
     # Counter of how many created so far
     current_max = 0
-    
+
     # Connect to the Reality2 node
-    r2_node = R2(host, 4005)
+    # Note: verify_ssl=False is used for self-signed certificates in development
+    r2_node = R2(host, 4005, verify_ssl=False)
     
     print("+---- Create many Sentants -------------------------------+")
     print("| Type c to create Sentants.                              |")

@@ -35,7 +35,8 @@ def printout(data):
 # ----------------------------------------------------------------------------------------------------
 def main(host):
     # Connect to the Reality2 node
-    r2_node = R2(host, 4005)
+    # Note: verify_ssl=False is used for self-signed certificates in development
+    r2_node = R2(host, 4005, verify_ssl=False)
 
     # Unload the Sentants
     for position in positions:

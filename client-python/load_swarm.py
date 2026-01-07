@@ -1,40 +1,41 @@
 # ----------------------------------------------------------------------------------------------------
 # Import the Reality2 module
 # ----------------------------------------------------------------------------------------------------
-from reality2 import Reality2 as R2
+import base64
+import copy
+import json
+import re
 import sys
 import time
-import json
-import toml
 from os.path import exists
-from getkey import getkey
-import copy
-import ruamel.yaml
-import re
-import base64
 
-yaml = ruamel.yaml.YAML(typ='safe')
+import ruamel.yaml
+import toml
+from getkey import getkey
+from reality2 import Reality2 as R2
+
+yaml = ruamel.yaml.YAML(typ="safe")
 print_cr = False
 
 # ----------------------------------------------------------------------------------------------------
-
 
 
 # ----------------------------------------------------------------------------------------------------
 # Print out the help
 # ----------------------------------------------------------------------------------------------------
 def printhelp(events):
-    print (events)
+    print(events)
     print("---------- Send Events ----------")
-    
+
     for counter, event in enumerate(events):
         print(" Press [", counter, "] for {", event["event"], event["parameters"], "}")
 
     print(" Press [ h ] for help.")
     print(" Press [ q ] to quit.")
-    print("---------------------------------")    
-# ----------------------------------------------------------------------------------------------------
+    print("---------------------------------")
 
+
+# ----------------------------------------------------------------------------------------------------
 
 
 # ----------------------------------------------------------------------------------------------------
@@ -42,15 +43,16 @@ def printhelp(events):
 # ----------------------------------------------------------------------------------------------------
 def prompt(events):
     global print_cr
-    
+
     prompt = ""
     for counter, event in enumerate(events):
         prompt += str(counter) + " "
     prompt += "h q >"
     print_cr = True
     return prompt
-# ----------------------------------------------------------------------------------------------------
 
+
+# ----------------------------------------------------------------------------------------------------
 
 
 # ----------------------------------------------------------------------------------------------------
@@ -58,38 +60,47 @@ def prompt(events):
 # ----------------------------------------------------------------------------------------------------
 def printout(data):
     global print_cr
-    
+
     event = R2.JSONPath(data, "awaitSignal.event")
-    
-    if (print_cr):
+
+    if print_cr:
         print_cr = False
         print()
-    
-    if (event == "debug"):
-        print("DEBUG  :", R2.JSONPath(data, "awaitSignal.parameters")) 
-    else: 
-        print("SIGNAL : [", R2.JSONPath(data, "awaitSignal.event"), "] :", R2.JSONPath(data, "awaitSignal.parameters"), "::", R2.JSONPath(data, "awaitSignal.passthrough"))
-# ----------------------------------------------------------------------------------------------------
 
+    if event == "debug":
+        print("DEBUG  :", R2.JSONPath(data, "awaitSignal.parameters"))
+    else:
+        print(
+            "SIGNAL : [",
+            R2.JSONPath(data, "awaitSignal.event"),
+            "] :",
+            R2.JSONPath(data, "awaitSignal.parameters"),
+            "::",
+            R2.JSONPath(data, "awaitSignal.passthrough"),
+        )
+
+
+# ----------------------------------------------------------------------------------------------------
 
 
 # ----------------------------------------------------------------------------------------------------
 # Replace the variables in the definition file
 # ----------------------------------------------------------------------------------------------------
 def replace_variables(definition, variables_filename):
-    with open(variables_filename, 'r') as file:
+    with open(variables_filename, "r") as file:
         variables_txt = file.read()
-    
+
     # Convert the variables to a dictionary
     variables = json.loads(variables_txt)
 
     # Replace the variables in the definition file
     for key in variables:
         definition = definition.replace(key, variables[key])
-        
-    return definition
-# ----------------------------------------------------------------------------------------------------
 
+    return definition
+
+
+# ----------------------------------------------------------------------------------------------------
 
 
 # ----------------------------------------------------------------------------------------------------
@@ -97,58 +108,61 @@ def replace_variables(definition, variables_filename):
 # ----------------------------------------------------------------------------------------------------
 def encode_file_to_base64(filename):
     # Read a file and return its base64 encoded contents.
-    if (exists(filename)):
-        with open(filename, 'rb') as file:
+    if exists(filename):
+        with open(filename, "rb") as file:
             file_contents = file.read()
-        return base64.b64encode(file_contents).decode('utf-8')
+        return base64.b64encode(file_contents).decode("utf-8")
     else:
         print("The file", filename, "does not exist.")
         return ""
 
+
 def replace_file_references(definition):
     # Replace file(filename) references with base64 encoded file contents.
-    pattern = re.compile(r'file\((.*?)\)')
-    
+    pattern = re.compile(r"file\((.*?)\)")
+
     def replace_match(match):
         filename = match.group(1)
         encoded_content = encode_file_to_base64(filename)
         return encoded_content
-    
-    return pattern.sub(replace_match, definition)    
-# ----------------------------------------------------------------------------------------------------
 
+    return pattern.sub(replace_match, definition)
+
+
+# ----------------------------------------------------------------------------------------------------
 
 
 # ----------------------------------------------------------------------------------------------------
 # Main function
 # ----------------------------------------------------------------------------------------------------
 def main(filename, host, port):
-
     # ------------------------------------------------------------------------------------------------
     # Connect to the Reality2 node
     # ------------------------------------------------------------------------------------------------
-    r2_node = R2(host, port)
+    # Note: verify_ssl=False is used for self-signed certificates in development
+    # For production with valid certificates, remove this parameter
+    r2_node = R2(host, port, verify_ssl=False)
 
     # ------------------------------------------------------------------------------------------------
     # Read the definition file
     # ------------------------------------------------------------------------------------------------
-    if (exists(filename)):
-        with open(filename, 'r') as file:
+    if exists(filename):
+        with open(filename, "r") as file:
             definition = file.read()
     else:
         print("The file", filename, "does not exist.")
         return
-    
+
     # ------------------------------------------------------------------------------------------------
     # Read the variables files (if they exist)
     # ------------------------------------------------------------------------------------------------
-    if exists('../../../variables.json'):
-        definition = replace_variables(definition, '../../../variables.json')
-    if exists('../../variables.json'):
-        definition = replace_variables(definition, '../../variables.json')
-    if exists('./variables.json'):
-        definition = replace_variables(definition, './variables.json')
-        
+    if exists("../../../variables.json"):
+        definition = replace_variables(definition, "../../../variables.json")
+    if exists("../../variables.json"):
+        definition = replace_variables(definition, "../../variables.json")
+    if exists("./variables.json"):
+        definition = replace_variables(definition, "./variables.json")
+
     # ------------------------------------------------------------------------------------------------
     # Replace file(filename) references with base64 encoded file contents
     # ------------------------------------------------------------------------------------------------
@@ -157,38 +171,46 @@ def main(filename, host, port):
     # ------------------------------------------------------------------------------------------------
     # Unload the existing Sentants named in the file if it exists
     # ------------------------------------------------------------------------------------------------
-    if filename.endswith('.yaml'):
+    if filename.endswith(".yaml"):
         definition_json = yaml.load(definition)
-    elif filename.endswith('.toml'):
+    elif filename.endswith(".toml"):
         definition_json = toml.loads(definition)
-    elif filename.endswith('.json'):
+    elif filename.endswith(".json"):
         definition_json = json.loads(definition)
     else:
         print("The file", filename, "is not a valid format.")
         return
-            
+
     sentant_names = R2.JSONPath(definition_json, "swarm.sentants.[].name")
-    print("Unloading existing Sentants named \"", sentant_names, "\"")
+    print('Unloading existing Sentants named "', sentant_names, '"')
     for sentant_name in sentant_names:
-        r2_node.sentantUnloadByName(sentant_name)
+        try:
+            r2_node.sentantUnloadByName(sentant_name)
+            print(f"Unloaded {sentant_name}")
+        except Exception as e:
+            print(f"Sentant {sentant_name} not found (this is ok): {e}")
 
     # ------------------------------------------------------------------------------------------------
     # Load the Swarm
     # ------------------------------------------------------------------------------------------------
-    result = r2_node.swarmLoad(definition, {}, "id name signals events { event parameters }")
-    
+    result = r2_node.swarmLoad(
+        definition, {}, "id name signals events { event parameters }"
+    )
+
     # ------------------------------------------------------------------------------------------------
     # Get the IDs of the loaded Sentants
     # ------------------------------------------------------------------------------------------------
     ids = R2.JSONPath(result, "swarmLoad.sentants.[].id")
-    
+
     # ------------------------------------------------------------------------------------------------
     # Get the signals and events
     # ------------------------------------------------------------------------------------------------
-    signals = list(zip(ids, R2.JSONPath(result, "swarmLoad.sentants.[].signals")))            
+    signals = list(zip(ids, R2.JSONPath(result, "swarmLoad.sentants.[].signals")))
     events = [
-        {**dict_element, 'id': id}
-        for id, inner_array in zip(ids, R2.JSONPath(result, "swarmLoad.sentants.[].events"))
+        {**dict_element, "id": id}
+        for id, inner_array in zip(
+            ids, R2.JSONPath(result, "swarmLoad.sentants.[].events")
+        )
         for dict_element in inner_array
     ]
 
@@ -197,7 +219,7 @@ def main(filename, host, port):
     # ------------------------------------------------------------------------------------------------
     for id in ids:
         r2_node.awaitSignal(id, "debug", printout)
-        
+
     for signal_tuple in signals:
         id, signals = signal_tuple
         for signal in signals:
@@ -216,32 +238,40 @@ def main(filename, host, port):
     # ------------------------------------------------------------------------------------------------
     # Wait for user input and send the events
     # ------------------------------------------------------------------------------------------------
-    while (True):
-        print (prompt(events), end=" ", flush=True)
+    while True:
+        print(prompt(events), end=" ", flush=True)
         key = getkey()
         print("\n")
-        
-        if (key =="q"):
+
+        if key == "q":
             break
-        elif (key == "h"):
+        elif key == "h":
             printhelp(events)
         else:
             if key.isdigit():
                 index = int(key)
-                if (index >= 0 and index < len(events)):
+                if index >= 0 and index < len(events):
                     parameters = copy.deepcopy(events[index]["parameters"])
 
                     for parameter in parameters:
-                        print("Type in a", parameters[parameter], "for", parameter, end=" : ")
+                        print(
+                            "Type in a",
+                            parameters[parameter],
+                            "for",
+                            parameter,
+                            end=" : ",
+                        )
                         parameters[parameter] = input()
 
                     print("SEND   : [", events[index]["event"], "]")
-                    r2_node.sentantSend(events[index]["id"], events[index]["event"], parameters)
+                    r2_node.sentantSend(
+                        events[index]["id"], events[index]["event"], parameters
+                    )
                 else:
                     print("Please enter a number from 0 to", len(events) - 1)
             else:
                 print("Please enter a number, h for help, or q to quit.")
-                
+
         time.sleep(1)
 
     # ------------------------------------------------------------------------------------------------
@@ -249,17 +279,22 @@ def main(filename, host, port):
     # ------------------------------------------------------------------------------------------------
     print("Closing the subscriptions and quitting.")
     r2_node.close()
-# ----------------------------------------------------------------------------------------------------
 
+
+# ----------------------------------------------------------------------------------------------------
 
 
 # ----------------------------------------------------------------------------------------------------
 # If this script is run from the command line then call the main function.
 # ----------------------------------------------------------------------------------------------------
-if (__name__ == '__main__'):
-    if (len(sys.argv) < 2):
+if __name__ == "__main__":
+    if len(sys.argv) < 2:
         print("Usage: python3 load_swarm.py <filename> <host> <port>")
         sys.exit(1)
 
-    main(sys.argv[1], sys.argv[2] if (len(sys.argv) > 2) else "localhost", sys.argv[3] if (len(sys.argv) > 3) else 4005)
+    main(
+        sys.argv[1],
+        sys.argv[2] if (len(sys.argv) > 2) else "localhost",
+        sys.argv[3] if (len(sys.argv) > 3) else 4005,
+    )
 # ----------------------------------------------------------------------------------------------------
