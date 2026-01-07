@@ -1,0 +1,110 @@
+sentant:
+  name: Bored API
+  description: Get random activity suggestions when you're bored
+
+  plugins:
+    - name: com.boredapi
+      url: https://www.boredapi.com/api/activity
+      method: GET
+      headers:
+        Content-Type: application/json
+      output:
+        key: activity_data
+        value: ""
+        event: activity_response
+
+  automations:
+    - name: Activity Suggester
+      description: Suggests activities based on boredom level
+
+      transitions:
+        # Get a random activity
+        - event: "Get Activity"
+          public: true
+          actions:
+            - plugin: com.boredapi
+              command: send
+
+        # Process the activity response
+        - event: activity_response
+          actions:
+            - command: set
+              parameters:
+                key: activity
+                value:
+                  jsonpath: activity_data.activity
+            - command: set
+              parameters:
+                key: type
+                value:
+                  jsonpath: activity_data.type
+            - command: set
+              parameters:
+                key: participants
+                value:
+                  jsonpath: activity_data.participants
+            - command: set
+              parameters:
+                key: price
+                value:
+                  jsonpath: activity_data.price
+            - command: set
+              parameters:
+                key: accessibility
+                value:
+                  jsonpath: activity_data.accessibility
+            - command: signal
+              parameters:
+                public: true
+                event: "Activity Suggestion"
+                parameters:
+                  activity:
+                    data: activity
+                  type:
+                    data: type
+                  participants:
+                    data: participants
+                  price:
+                    data: price
+                  accessibility:
+                    data: accessibility
+
+        # Get activity by type
+        - event: "Get Activity By Type"
+          public: true
+          parameters:
+            activity_type: string
+          actions:
+            - plugin: com.boredapi.by_type
+              command: send
+
+        # Get activity by number of participants
+        - event: "Get Activity By Participants"
+          public: true
+          parameters:
+            num_participants: number
+          actions:
+            - plugin: com.boredapi.by_participants
+              command: send
+
+  # Additional plugin variations for filtered requests
+  additional_plugins:
+    - name: com.boredapi.by_type
+      url: https://www.boredapi.com/api/activity?type=__activity_type__
+      method: GET
+      headers:
+        Content-Type: application/json
+      output:
+        key: activity_data
+        value: ""
+        event: activity_response
+
+    - name: com.boredapi.by_participants
+      url: https://www.boredapi.com/api/activity?participants=__num_participants__
+      method: GET
+      headers:
+        Content-Type: application/json
+      output:
+        key: activity_data
+        value: ""
+        event: activity_response

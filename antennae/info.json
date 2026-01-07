@@ -14,5 +14,9 @@
   "com.twilio.api": {
     "name": "Twilio SMS API",
     "description": "Send a TXT message via the Twilio API."
+  },
+  "com.boredapi": {
+    "name": "Bored API",
+    "description": "Get random activity suggestions from BoredAPI.com - no authentication required."
   }
 }
