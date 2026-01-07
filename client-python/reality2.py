@@ -102,7 +102,7 @@ class GraphQLQuery:
         """Build a GraphQL query.
 
         Args:
-            name: Query name
+            name: Query name (PascalCase, e.g., "SentantGet")
             fields: Fields to select
             variables: Variable definitions (name -> type)
 
@@ -114,9 +114,12 @@ class GraphQLQuery:
             var_list = [f"${k}: {v}" for k, v in variables.items()]
             var_defs = f"({', '.join(var_list)})"
 
+        # Convert PascalCase to camelCase for the field name
+        field_name = name[0].lower() + name[1:] if name else name
+
         return f"""
         query {name}{var_defs} {{
-            {name.lower()}{GraphQLQuery._format_variables(variables)} {{
+            {field_name}{GraphQLQuery._format_variables(variables)} {{
                 {fields}
             }}
         }}
@@ -127,7 +130,7 @@ class GraphQLQuery:
         """Build a GraphQL mutation.
 
         Args:
-            name: Mutation name
+            name: Mutation name (PascalCase, e.g., "SentantLoad")
             fields: Fields to select
             variables: Variable definitions (name -> type)
 
@@ -139,9 +142,12 @@ class GraphQLQuery:
             var_list = [f"${k}: {v}" for k, v in variables.items()]
             var_defs = f"({', '.join(var_list)})"
 
+        # Convert PascalCase to camelCase for the field name
+        field_name = name[0].lower() + name[1:] if name else name
+
         return f"""
         mutation {name}{var_defs} {{
-            {name[0].lower() + name[1:]}{GraphQLQuery._format_variables(variables)} {{
+            {field_name}{GraphQLQuery._format_variables(variables)} {{
                 {fields}
             }}
         }}
@@ -152,7 +158,7 @@ class GraphQLQuery:
         """Build a GraphQL subscription.
 
         Args:
-            name: Subscription name
+            name: Subscription name (PascalCase, e.g., "AwaitSignal")
             fields: Fields to select
             variables: Variable definitions (name -> type)
 
@@ -164,9 +170,12 @@ class GraphQLQuery:
             var_list = [f"${k}: {v}" for k, v in variables.items()]
             var_defs = f"({', '.join(var_list)})"
 
+        # Convert PascalCase to camelCase for the field name
+        field_name = name[0].lower() + name[1:] if name else name
+
         return f"""
         subscription {name}{var_defs} {{
-            {name[0].lower() + name[1:]}{GraphQLQuery._format_variables(variables)} {{
+            {field_name}{GraphQLQuery._format_variables(variables)} {{
                 {fields}
             }}
         }}

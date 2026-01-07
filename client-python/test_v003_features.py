@@ -37,28 +37,29 @@ def test_graphql_query_builder():
     # Test simple query
     query = GraphQLQuery.query("SentantAll", "id name")
     assert "query SentantAll" in query
-    assert "sentantall" in query.lower()
+    assert "sentantAll" in query  # Should be camelCase, not lowercase
     assert "id name" in query
     logger.info("✓ Simple query generated correctly")
 
     # Test query with variables
     query = GraphQLQuery.query("SentantGet", "id name description", {"id": "UUID4"})
     assert "query SentantGet($id: UUID4)" in query
-    assert "sentantget(id: $id)" in query.lower()
-    logger.info("✓ Query with variables generated correctly")
+    assert "sentantGet(id: $id)" in query  # Should be camelCase: sentantGet not sentantget
+    logger.info("✓ Query with variables generated correctly (camelCase)")
 
     # Test mutation
     mutation = GraphQLQuery.mutation("SentantLoad", "id name", {"definition": "String!"})
     assert "mutation SentantLoad($definition: String!)" in mutation
-    assert "sentantload(definition: $definition)" in mutation.lower()
-    logger.info("✓ Mutation generated correctly")
+    assert "sentantLoad(definition: $definition)" in mutation  # Should be camelCase
+    logger.info("✓ Mutation generated correctly (camelCase)")
 
     # Test subscription
     subscription = GraphQLQuery.subscription("AwaitSignal", "event parameters", {"id": "UUID4!", "signal": "String!"})
     assert "subscription AwaitSignal" in subscription
     assert "$id: UUID4!" in subscription
     assert "$signal: String!" in subscription
-    logger.info("✓ Subscription generated correctly")
+    assert "awaitSignal(id: $id, signal: $signal)" in subscription  # Should be camelCase
+    logger.info("✓ Subscription generated correctly (camelCase)")
 
 
 def test_pagination():
