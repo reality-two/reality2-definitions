@@ -1,23 +1,130 @@
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # Reality2 class for connecting to a Reality2 Node
 # Author: Roy Davies, 2024, roycdavies.github.io
-# Version: 0.0.1
+# Version: 0.0.2
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 import json
 import time
 import threading
 import logging
 import warnings
+import random
+from typing import Dict, List, Optional, Any, Callable, Union, TypeVar, cast
+from functools import wraps
 from websockets.sync.client import connect
 import ssl
 
 import requests
 import urllib3.exceptions
 
+# Type variable for retry decorator
+T = TypeVar('T')
+
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # Configure logging
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 logger = logging.getLogger(__name__)
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+# Retry Decorator with Exponential Backoff
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+def retry_with_backoff(
+    max_retries: int = 3,
+    initial_backoff: float = 1.0,
+    exceptions: tuple = (requests.exceptions.ConnectionError, requests.exceptions.Timeout)
+) -> Callable[[Callable[..., T]], Callable[..., T]]:
+    """Decorator to retry a function with exponential backoff.
+
+    Args:
+        max_retries: Maximum number of retry attempts
+        initial_backoff: Initial backoff time in seconds
+        exceptions: Tuple of exceptions to catch and retry
+
+    Returns:
+        Decorated function with retry logic
+    """
+    def decorator(func: Callable[..., T]) -> Callable[..., T]:
+        @wraps(func)
+        def wrapper(*args: Any, **kwargs: Any) -> T:
+            last_exception: Optional[Exception] = None
+
+            for attempt in range(max_retries + 1):
+                try:
+                    return func(*args, **kwargs)
+                except exceptions as e:
+                    last_exception = e
+                    if attempt < max_retries:
+                        # Exponential backoff with jitter
+                        backoff = initial_backoff * (2 ** attempt)
+                        jitter = random.uniform(0, 0.1 * backoff)
+                        sleep_time = backoff + jitter
+                        logger.warning(
+                            f"Attempt {attempt + 1}/{max_retries + 1} failed: {e}. "
+                            f"Retrying in {sleep_time:.2f}s..."
+                        )
+                        time.sleep(sleep_time)
+                    else:
+                        logger.error(f"All {max_retries + 1} attempts failed")
+
+            # If we get here, all retries failed
+            if last_exception:
+                raise last_exception
+            raise RuntimeError("Retry logic error")
+
+        return wrapper
+    return decorator
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+# Configuration Class
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+class Reality2Config:
+    """Configuration for Reality2 client.
+
+    Attributes:
+        domain_name: Server hostname or IP address
+        port: Server port number
+        ssl: Whether to use SSL/TLS
+        verify_ssl: Whether to verify SSL certificates
+        timeout: Request timeout in seconds
+        max_retries: Maximum number of retry attempts for failed requests
+        retry_backoff: Initial backoff time in seconds for retries
+    """
+
+    def __init__(
+        self,
+        domain_name: str = "localhost",
+        port: int = 4005,
+        ssl: bool = True,
+        verify_ssl: bool = True,
+        timeout: float = 30.0,
+        max_retries: int = 3,
+        retry_backoff: float = 1.0
+    ):
+        self.domain_name = domain_name
+        self.port = port
+        self.ssl = ssl
+        self.verify_ssl = verify_ssl if ssl else False
+        self.timeout = timeout
+        self.max_retries = max_retries
+        self.retry_backoff = retry_backoff
+
+    @property
+    def graphql_http_url(self) -> str:
+        """Get the HTTP GraphQL endpoint URL."""
+        protocol = "https" if self.ssl else "http"
+        return f"{protocol}://{self.domain_name}:{self.port}/reality2"
+
+    @property
+    def graphql_ws_url(self) -> str:
+        """Get the WebSocket GraphQL endpoint URL."""
+        protocol = "wss" if self.ssl else "ws"
+        return f"{protocol}://{self.domain_name}:{self.port}/reality2/websocket"
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -56,42 +163,63 @@ class Reality2GraphQLError(Reality2Error):
 # Reality2 class for connecting to a Reality2 Node
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 class Reality2:
-    
+
     # --------------------------------------------------------------------------------------------------------------------------------------------------
     # Private attributes
     # --------------------------------------------------------------------------------------------------------------------------------------------------
-    __graphql_http_url: str
-    __graphql_webs_url: str
-    __secure: bool
-    __verify_ssl: bool
-
-    __event_flags = []
-    __event_threads = []
-    __websockets = []
-    __lock = None  # Thread safety lock
+    __config: Reality2Config
+    __event_flags: List[threading.Event]
+    __event_threads: List[threading.Thread]
+    __websockets: List[Any]
+    __lock: Optional[threading.Lock]
     # --------------------------------------------------------------------------------------------------------------------------------------------------
 
 
-    
+
     # --------------------------------------------------------------------------------------------------------------------------------------------------
     # Constructor
     # --------------------------------------------------------------------------------------------------------------------------------------------------
-    def __init__ (self, domain_name, port, ssl = True, verify_ssl = True):
-        self.__secure = ssl
-        self.__verify_ssl = verify_ssl if ssl else False
+    def __init__ (
+        self,
+        domain_name: Union[str, Reality2Config] = "localhost",
+        port: Optional[int] = None,
+        ssl: bool = True,
+        verify_ssl: bool = True,
+        timeout: float = 30.0,
+        max_retries: int = 3,
+        retry_backoff: float = 1.0
+    ) -> None:
+        """Initialize Reality2 client.
+
+        Args:
+            domain_name: Server hostname/IP or Reality2Config object
+            port: Server port (default: 4005)
+            ssl: Use SSL/TLS (default: True)
+            verify_ssl: Verify SSL certificates (default: True)
+            timeout: Request timeout in seconds (default: 30.0)
+            max_retries: Maximum retry attempts (default: 3)
+            retry_backoff: Initial retry backoff in seconds (default: 1.0)
+        """
+        # Support both old-style parameters and new config object
+        if isinstance(domain_name, Reality2Config):
+            self.__config = domain_name
+        else:
+            self.__config = Reality2Config(
+                domain_name=domain_name,
+                port=port if port is not None else 4005,
+                ssl=ssl,
+                verify_ssl=verify_ssl,
+                timeout=timeout,
+                max_retries=max_retries,
+                retry_backoff=retry_backoff
+            )
+
         self.__lock = threading.Lock()
         self.__event_flags = []
         self.__event_threads = []
         self.__websockets = []
 
-        if (ssl):
-            self.__graphql_http_url = "https://" + domain_name + ":" + str(port) + "/reality2"
-            self.__graphql_webs_url = "wss://" + domain_name + ":" + str(port) + "/reality2/websocket"
-        else:
-            self.__graphql_http_url = "http://" + domain_name + ":" + str(port) + "/reality2"
-            self.__graphql_webs_url = "ws://" + domain_name + ":" + str(port) + "/reality2/websocket"
-
-        logger.info(f"Reality2 client initialized: {self.__graphql_http_url}")
+        logger.info(f"Reality2 client initialized: {self.__config.graphql_http_url}")
     # --------------------------------------------------------------------------------------------------------------------------------------------------
     
     
@@ -99,7 +227,7 @@ class Reality2:
     # --------------------------------------------------------------------------------------------------------------------------------------------------
     # Close all connections and cleanup resources
     # --------------------------------------------------------------------------------------------------------------------------------------------------
-    def close(self, timeout=5.0):
+    def close(self, timeout: float = 5.0) -> None:
         """Close all subscriptions and cleanup resources.
 
         Args:
@@ -143,20 +271,20 @@ class Reality2:
     # --------------------------------------------------------------------------------------------------------------------------------------------------
     # Context manager support
     # --------------------------------------------------------------------------------------------------------------------------------------------------
-    def __enter__(self):
+    def __enter__(self) -> 'Reality2':
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> bool:
         self.close()
         return False
     # --------------------------------------------------------------------------------------------------------------------------------------------------
 
-    
-    
+
+
     # --------------------------------------------------------------------------------------------------------------------------------------------------
     # Destructor - Close the connection(s)
     # --------------------------------------------------------------------------------------------------------------------------------------------------
-    def __del__ (self):
+    def __del__ (self) -> None:
         pass
     # --------------------------------------------------------------------------------------------------------------------------------------------------
     
@@ -166,27 +294,27 @@ class Reality2:
     # Public GraphQL methods
     # --------------------------------------------------------------------------------------------------------------------------------------------------
     # Queries
-    def sentantAll (self, passthrough = {}, details = "id name"):   
+    def sentantAll (self, passthrough: Dict[str, Any] = {}, details: str = "id name") -> Dict[str, Any]:
         return {**passthrough, **self.__graphql_post(self.__sentant_all(details), {})}
 
-    
-    def sentantGet (self, id="", passthrough = {}, details = "id name"):
+
+    def sentantGet (self, id: str = "", passthrough: Dict[str, Any] = {}, details: str = "id name") -> Dict[str, Any]:
         return {**passthrough, **self.__graphql_post(self.__sentant_get_by_id(details), {"id": id})}
-        
-    def sentantGetByName (self, name = "", passthrough = {}, details = "id name"):
-        return {**passthrough, **self.__graphql_post(self.__sentant_get_by_name(details), {"name": name})}   
-    
+
+    def sentantGetByName (self, name: str = "", passthrough: Dict[str, Any] = {}, details: str = "id name") -> Dict[str, Any]:
+        return {**passthrough, **self.__graphql_post(self.__sentant_get_by_name(details), {"name": name})}
+
     # Mutations
-    def sentantLoad (self, definition, passthrough = {}, details = "id name"):
+    def sentantLoad (self, definition: str, passthrough: Dict[str, Any] = {}, details: str = "id name") -> Dict[str, Any]:
         return {**passthrough, **self.__graphql_post(self.__sentant_load(details), {"definition": definition})}
-    
-    def swarmLoad (self, definition, passthrough = {}, details = "id name"):
+
+    def swarmLoad (self, definition: str, passthrough: Dict[str, Any] = {}, details: str = "id name") -> Dict[str, Any]:
         return {**passthrough, **self.__graphql_post(self.__swarm_load(details), {"definition": definition})}
-    
-    def sentantSend (self, id, event, parameters = {}, passthrough = {}, details = "id name"):
+
+    def sentantSend (self, id: str, event: str, parameters: Dict[str, Any] = {}, passthrough: Dict[str, Any] = {}, details: str = "id name") -> Dict[str, Any]:
         return self.__graphql_post(self.__sentant_send(details), {"id": id, "event": event, "parameters": json.dumps(parameters), "passthrough": json.dumps(passthrough)})
     
-    def sentantSendByName (self, name, event, parameters = {}, passthrough = {}, details = "id name"):
+    def sentantSendByName (self, name: str, event: str, parameters: Dict[str, Any] = {}, passthrough: Dict[str, Any] = {}, details: str = "id name") -> Dict[str, Any]:
         """Send an event to a Sentant by name.
 
         Args:
@@ -219,10 +347,10 @@ class Reality2:
             logger.error(f"Error sending to Sentant '{name}': {e}")
             raise Reality2ResponseError(f"Invalid response when sending to '{name}'") from e
 
-    def sentantUnload (self, id, passthrough = {}, details = "id name"):
+    def sentantUnload (self, id: str, passthrough: Dict[str, Any] = {}, details: str = "id name") -> Dict[str, Any]:
         return {**passthrough, **self.__graphql_post(self.__sentant_unload(details), {"id": id})}
-    
-    def sentantUnloadByName (self, name, passthrough = {}, details = "id name"):
+
+    def sentantUnloadByName (self, name: str, passthrough: Dict[str, Any] = {}, details: str = "id name") -> Dict[str, Any]:
         """Unload a Sentant by name.
 
         Args:
@@ -250,7 +378,7 @@ class Reality2:
             logger.error(f"Error unloading Sentant '{name}': {e}")
             raise Reality2ResponseError(f"Invalid response when unloading '{name}'") from e
 
-    def sentantUnloadAll (self, passthrough = {}):
+    def sentantUnloadAll (self, passthrough: Dict[str, Any] = {}) -> List[Dict[str, Any]]:
         """Unload all Sentants.
 
         Args:
@@ -280,7 +408,7 @@ class Reality2:
             raise Reality2ResponseError("Invalid response when unloading all Sentants") from e
     
     # Subscriptions
-    def awaitSignal (self, id, signal, callback=None, details="event parameters passthrough sentant { id name description }"):
+    def awaitSignal (self, id: str, signal: str, callback: Optional[Callable[[Dict[str, Any]], None]] = None, details: str = "event parameters passthrough sentant { id name description }") -> None:
         """Subscribe to a Sentant signal via WebSocket.
 
         Args:
@@ -295,7 +423,7 @@ class Reality2:
         newEvent = threading.Event()
         newThread = threading.Thread(
             target=self.__subscribe,
-            args=(self.__graphql_webs_url, id, signal, callback, details, newEvent),
+            args=(self.__config.graphql_ws_url, id, signal, callback, details, newEvent),
             daemon=True,
             name=f"Reality2-{id[:8]}-{signal}"
         )
@@ -314,7 +442,7 @@ class Reality2:
     # Static methods
     # --------------------------------------------------------------------------------------------------------------------------------------------------
     @staticmethod
-    def JSONPath(data, path):
+    def JSONPath(data: Any, path: str) -> Any:
         paths = path.split(".")
         currentData = data
         for index, subpath in enumerate(paths):
@@ -345,8 +473,8 @@ class Reality2:
     # --------------------------------------------------------------------------------------------------------------------------------------------------
     # A POST for using with GraphQL
     # --------------------------------------------------------------------------------------------------------------------------------------------------
-    def __graphql_post(self, query, variables):
-        """Execute a GraphQL query via HTTP POST.
+    def __graphql_post(self, query: str, variables: Dict[str, Any]) -> Dict[str, Any]:
+        """Execute a GraphQL query via HTTP POST with retry logic.
 
         Args:
             query: GraphQL query string
@@ -361,6 +489,48 @@ class Reality2:
             Reality2ResponseError: Invalid response format
             Reality2GraphQLError: GraphQL returned errors
         """
+        last_exception: Optional[Exception] = None
+
+        for attempt in range(self.__config.max_retries + 1):
+            try:
+                return self.__graphql_post_single_attempt(query, variables)
+            except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as e:
+                last_exception = e
+                if attempt < self.__config.max_retries:
+                    # Exponential backoff with jitter
+                    backoff = self.__config.retry_backoff * (2 ** attempt)
+                    jitter = random.uniform(0, 0.1 * backoff)
+                    sleep_time = backoff + jitter
+                    logger.warning(
+                        f"GraphQL request attempt {attempt + 1}/{self.__config.max_retries + 1} failed: {e}. "
+                        f"Retrying in {sleep_time:.2f}s..."
+                    )
+                    time.sleep(sleep_time)
+                else:
+                    logger.error(f"All {self.__config.max_retries + 1} GraphQL request attempts failed")
+                    if isinstance(e, requests.exceptions.Timeout):
+                        raise Reality2TimeoutError(f"Request to {self.__config.graphql_http_url} timed out after {self.__config.max_retries + 1} attempts") from e
+                    else:
+                        raise Reality2ConnectionError(f"Failed to connect to {self.__config.graphql_http_url} after {self.__config.max_retries + 1} attempts") from e
+
+        # This should not be reached, but just in case
+        if last_exception:
+            raise Reality2ConnectionError(f"Request failed: {last_exception}") from last_exception
+        raise RuntimeError("Retry logic error")
+
+    def __graphql_post_single_attempt(self, query: str, variables: Dict[str, Any]) -> Dict[str, Any]:
+        """Execute a single GraphQL POST request attempt.
+
+        Args:
+            query: GraphQL query string
+            variables: Query variables
+
+        Returns:
+            Response data dict
+
+        Raises:
+            Various exceptions for different error conditions
+        """
         try:
             body = {
                 "query": query,
@@ -368,21 +538,21 @@ class Reality2:
             }
 
             # Suppress SSL warnings only for this specific request if verify_ssl is False
-            if not self.__verify_ssl:
+            if not self.__config.verify_ssl:
                 with warnings.catch_warnings():
                     warnings.simplefilter("ignore", urllib3.exceptions.InsecureRequestWarning)
                     answer = requests.post(
-                        self.__graphql_http_url,
+                        self.__config.graphql_http_url,
                         data=body,
-                        verify=self.__verify_ssl,
-                        timeout=30.0
+                        verify=self.__config.verify_ssl,
+                        timeout=self.__config.timeout
                     )
             else:
                 answer = requests.post(
-                    self.__graphql_http_url,
+                    self.__config.graphql_http_url,
                     data=body,
-                    verify=self.__verify_ssl,
-                    timeout=30.0
+                    verify=self.__config.verify_ssl,
+                    timeout=self.__config.timeout
                 )
 
             response = answer.json()
@@ -410,14 +580,11 @@ class Reality2:
                 raise Reality2ResponseError(f"HTTP {answer.status_code}: {response}")
 
         except Reality2Error:
-            # Re-raise our own exceptions
+            # Re-raise our own exceptions (these won't be retried)
             raise
-        except requests.exceptions.Timeout as e:
-            logger.error(f"Request timeout: {e}")
-            raise Reality2TimeoutError(f"Request to {self.__graphql_http_url} timed out") from e
-        except requests.exceptions.ConnectionError as e:
-            logger.error(f"Connection failed: {e}")
-            raise Reality2ConnectionError(f"Failed to connect to {self.__graphql_http_url}") from e
+        except (requests.exceptions.Timeout, requests.exceptions.ConnectionError):
+            # Let these propagate to the retry logic in __graphql_post
+            raise
         except requests.exceptions.RequestException as e:
             logger.error(f"Request error: {e}")
             raise Reality2ConnectionError(f"Request failed: {e}") from e
@@ -431,7 +598,7 @@ class Reality2:
     # --------------------------------------------------------------------------------------------------------------------------------------------------
     # Check the status of the websocket
     # --------------------------------------------------------------------------------------------------------------------------------------------------
-    def __check_status (self, message):
+    def __check_status (self, message: str) -> bool:
         message_dict = json.loads(message)
         if "payload" in message_dict:
             if "status" in message_dict["payload"]:
@@ -450,7 +617,7 @@ class Reality2:
     # --------------------------------------------------------------------------------------------------------------------------------------------------
     # Define the heartbeat thread that keeps the websocket connection alive (to be called in it's own a thread)
     # --------------------------------------------------------------------------------------------------------------------------------------------------
-    def __heartbeat_thread (self, websocket, running: threading.Event):
+    def __heartbeat_thread (self, websocket: Any, running: threading.Event) -> None:
         heartbeat = {
             "topic": "phoenix",
             "event": "heartbeat",
@@ -470,7 +637,7 @@ class Reality2:
     # --------------------------------------------------------------------------------------------------------------------------------------------------
     # Subscribe to the Node channel representing the sentant and signal
     # --------------------------------------------------------------------------------------------------------------------------------------------------
-    def __subscribe (self, server, sentantid, signal, callback, details, running: threading.Event):
+    def __subscribe (self, server: str, sentantid: str, signal: str, callback: Optional[Callable[[Dict[str, Any]], None]], details: str, running: threading.Event) -> None:
         """Subscribe to a Sentant signal via WebSocket.
 
         Args:
@@ -506,10 +673,10 @@ class Reality2:
 
         try:
             # Connect to the server, join the channel and subscribe to the sentant event
-            if self.__secure:
+            if self.__config.ssl:
                 # Create the SSL context
                 ssl_context = ssl.create_default_context()
-                if not self.__verify_ssl:
+                if not self.__config.verify_ssl:
                     ssl_context.check_hostname = False
                     ssl_context.verify_mode = ssl.CERT_NONE
 
@@ -526,7 +693,7 @@ class Reality2:
             raise
             
             
-    def __after_connect(self, websocket, join_message, subscribe, sentantid, signal, callback, server, running: threading.Event):
+    def __after_connect(self, websocket: Any, join_message: Dict[str, Any], subscribe: Dict[str, Any], sentantid: str, signal: str, callback: Optional[Callable[[Dict[str, Any]], None]], server: str, running: threading.Event) -> None:
         """Handle websocket connection after establishment.
 
         Args:
@@ -620,7 +787,7 @@ class Reality2:
     # --------------------------------------------------------------------------------------------------------------------------------------------------
     # Await Signal definition
     # --------------------------------------------------------------------------------------------------------------------------------------------------
-    def __await_signal (self, details):
+    def __await_signal (self, details: str) -> str:
         return (
         """
         subscription AwaitSignal($id: UUID4!, $signal: String!) {
@@ -638,7 +805,7 @@ class Reality2:
     # --------------------------------------------------------------------------------------------------------------------------------------------------
     # Load Swarm definition
     # --------------------------------------------------------------------------------------------------------------------------------------------------
-    def __swarm_load (self, details):
+    def __swarm_load (self, details: str) -> str:
         return (
         """
         mutation SwarmLoad($definition: String!) {
@@ -659,7 +826,7 @@ class Reality2:
     # --------------------------------------------------------------------------------------------------------------------------------------------------
     # Send Event definition
     # --------------------------------------------------------------------------------------------------------------------------------------------------
-    def __sentant_send (self, details):
+    def __sentant_send (self, details: str) -> str:
         return (
         """
         mutation SentantSend($id: UUID4!, $event: String!, $parameters: Json, $passthrough: Json) {
@@ -676,7 +843,7 @@ class Reality2:
     # --------------------------------------------------------------------------------------------------------------------------------------------------
     # Load a Sentant definition
     # --------------------------------------------------------------------------------------------------------------------------------------------------
-    def __sentant_load (self, details):
+    def __sentant_load (self, details: str) -> str:
         return (
         """
         mutation SentantLoad($definition: String!) {
@@ -693,7 +860,7 @@ class Reality2:
     # --------------------------------------------------------------------------------------------------------------------------------------------------
     # Unload a Sentant
     # --------------------------------------------------------------------------------------------------------------------------------------------------
-    def __sentant_unload (self, details):
+    def __sentant_unload (self, details: str) -> str:
         return (
         """
         mutation SentantUnload($id: UUID4!) {
@@ -710,7 +877,7 @@ class Reality2:
     # --------------------------------------------------------------------------------------------------------------------------------------------------
     # Get a Sentant's details
     # --------------------------------------------------------------------------------------------------------------------------------------------------
-    def __sentant_get_by_id (self, details):
+    def __sentant_get_by_id (self, details: str) -> str:
         return (
         """
         query SentantGet($id: UUID4) {
@@ -727,7 +894,7 @@ class Reality2:
     # --------------------------------------------------------------------------------------------------------------------------------------------------
     # Get a Sentant's details
     # --------------------------------------------------------------------------------------------------------------------------------------------------
-    def __sentant_get_by_name (self, details):
+    def __sentant_get_by_name (self, details: str) -> str:
         return (
         """
         query SentantGet($name: String) {
@@ -744,7 +911,7 @@ class Reality2:
     # --------------------------------------------------------------------------------------------------------------------------------------------------
     # Get all Sentant's details
     # --------------------------------------------------------------------------------------------------------------------------------------------------
-    def __sentant_all (self, details):
+    def __sentant_all (self, details: str) -> str:
         return (
         """
         query SentantAll {
