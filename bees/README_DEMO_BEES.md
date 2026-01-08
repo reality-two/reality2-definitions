@@ -292,7 +292,7 @@ Most of these APIs have free tier rate limits:
 - **Advice Slip**: Unlimited
 - **Quotable**: Unlimited
 - **JokeAPI**: Unlimited
-- **Numbers API**: Unlimited
+- **Useless Facts**: Unlimited
 - **REST Countries**: Unlimited
 
 For production use, consider caching responses and implementing rate limiting in your application.
