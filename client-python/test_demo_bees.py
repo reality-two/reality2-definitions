@@ -163,32 +163,31 @@ def test_jokeapi(r2):
         print(f"✗ Error testing JokeAPI: {e}")
         return False
 
-def test_numbersapi(r2):
-    """Test the Numbers API bee."""
-    print_separator("Testing Numbers API")
+def test_uselessfacts(r2):
+    """Test the Useless Facts bee."""
+    print_separator("Testing Useless Facts")
 
     try:
-        r2.sentantLoad("Numbers API", "numbersapi")
-        print("✓ Numbers API bee loaded successfully")
+        r2.sentantLoad("Useless Facts", "uselessfacts")
+        print("✓ Useless Facts bee loaded successfully")
 
-        # Test with a specific number
-        test_number = "42"
-        print(f"Getting fact about number {test_number}...")
-        r2.sentantSend("Numbers API", "Get Number Fact", {"number": test_number})
+        print("Getting a random fact...")
+        r2.sentantSend("Useless Facts", "Get Fact", {})
 
-        for signal in r2.awaitSignal("Numbers API"):
-            if signal.get("event") == "Number Fact Received":
-                print(f"✓ Number fact received:")
-                print(f"  Number: {signal['parameters'].get('number')}")
+        for signal in r2.awaitSignal("Useless Facts"):
+            if signal.get("event") == "Fact Received":
+                print(f"✓ Fact received:")
+                print(f"  ID: {signal['parameters'].get('id')}")
                 print(f"  Fact: {signal['parameters'].get('fact')}")
+                print(f"  Source: {signal['parameters'].get('source')}")
                 break
 
-        r2.sentantUnload("Numbers API")
-        print("✓ Numbers API bee unloaded")
+        r2.sentantUnload("Useless Facts")
+        print("✓ Useless Facts bee unloaded")
         return True
 
     except Exception as e:
-        print(f"✗ Error testing Numbers API: {e}")
+        print(f"✗ Error testing Useless Facts: {e}")
         return False
 
 def test_quotable(r2):
@@ -341,7 +340,7 @@ def main():
     results["Nationalize"] = test_nationalize(r2)
     results["Advice Slip"] = test_adviceslip(r2)
     results["JokeAPI"] = test_jokeapi(r2)
-    results["Numbers API"] = test_numbersapi(r2)
+    results["Useless Facts"] = test_uselessfacts(r2)
     results["Quotable"] = test_quotable(r2)
     results["REST Countries"] = test_restcountries(r2)
 

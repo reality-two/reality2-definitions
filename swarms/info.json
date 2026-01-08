@@ -6,13 +6,5 @@
   "ai.reality2.strobe": {
     "name": "Strobing Light with Switch",
     "description": "A switch that toggles a strobe light on and off.  The frequency of strobing is set as a variable."
-  },
-  "name_intelligence": {
-    "name": "Name Intelligence",
-    "description": "Comprehensive name analysis combining age, gender, and nationality predictions from Agify, Genderize, and Nationalize APIs."
-  },
-  "life_coach": {
-    "name": "Life Coach",
-    "description": "Get comprehensive life coaching with activity suggestions, practical advice, and inspirational quotes from Bored API, Advice Slip, and Quotable APIs."
   }
 }

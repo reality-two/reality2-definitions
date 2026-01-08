@@ -4,7 +4,7 @@ sentant:
 
   plugins:
     - name: io.quotable.api
-      url: https://api.quotable.io/random
+      url: http://api.quotable.io/random
       method: GET
       headers:
         Content-Type: application/json

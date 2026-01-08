@@ -47,10 +47,6 @@
     "name": "WhatsApp send Message",
     "descripotion": "Send a message via the WhatsApp API."
   },
-  "boredapi": {
-    "name": "Bored API",
-    "description": "Get random activity suggestions when you're bored. Find something fun to do!"
-  },
   "agify": {
     "name": "Agify",
     "description": "Predict age from a person's name using the Agify.io API."
@@ -71,9 +67,9 @@
     "name": "JokeAPI",
     "description": "Get random jokes from JokeAPI. Entertainment and humor on demand."
   },
-  "numbersapi": {
-    "name": "Numbers API",
-    "description": "Get interesting trivia facts about numbers using the Numbers API."
+  "uselessfacts": {
+    "name": "Useless Facts",
+    "description": "Get random interesting facts using the Useless Facts API."
   },
   "quotable": {
     "name": "Quotable",

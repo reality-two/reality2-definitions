@@ -140,21 +140,21 @@ This collection of demo bees showcases the capabilities of the Reality2 Sentant 
 
 ## Information & Knowledge Bees
 
-### Numbers API
-**File**: `numbersapi.bee.yaml`
-**API**: http://numbersapi.com
-**Purpose**: Provides interesting trivia facts about numbers
+### Useless Facts
+**File**: `uselessfacts.bee.yaml`
+**API**: https://uselessfacts.jsph.pl
+**Purpose**: Provides random interesting facts
 
 **Public Events**:
-- `Get Number Fact` - Get a fact about a specific number (accepts `number` parameter)
-- `Get Random Number Fact` - Get a fact about a random number
+- `Get Fact` - Get a random fact
 
 **Signals**:
-- `Number Fact Received` - Returns:
-  - `number`: The number (or "random")
-  - `fact`: Interesting fact about the number
+- `Fact Received` - Returns:
+  - `id`: Unique fact ID
+  - `fact`: The fact text
+  - `source`: Source attribution
 
-**Example Use Case**: Educational apps, trivia, number exploration
+**Example Use Case**: Educational apps, trivia, conversation starters
 
 ---
 

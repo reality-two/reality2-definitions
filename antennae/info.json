@@ -39,9 +39,9 @@
     "name": "JokeAPI",
     "description": "Get random jokes from JokeAPI.dev - no authentication required."
   },
-  "com.numbersapi": {
-    "name": "Numbers API",
-    "description": "Get interesting number trivia from NumbersAPI.com - no authentication required."
+  "pl.jsph.uselessfacts.api": {
+    "name": "Useless Facts API",
+    "description": "Get random interesting facts from UselessFacts.jsph.pl - no authentication required."
   },
   "io.quotable.api": {
     "name": "Quotable API",

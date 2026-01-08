@@ -1,9 +1,0 @@
-plugin:
-  name: com.numbersapi
-  url: http://numbersapi.com/__number__/trivia
-  method: GET
-  headers:
-    Content-Type: text/plain
-  output:
-    key: number_fact
-    event: number_response
