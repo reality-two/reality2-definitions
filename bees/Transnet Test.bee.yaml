@@ -1,22 +1,101 @@
 sentant:
   name: Transnet Test
+  description: Test and manage Bluetooth and WiFi networking capabilities for Reality2 Transient Networks
+  data:
+    timeout: 5000
   automations:
-    - name: List Adapters
+    # --------------------------------------------------------------------------------------------------
+    # Bluetooth Operations
+    # --------------------------------------------------------------------------------------------------
+    - name: List BLE Adapters
       description: List Bluetooth Adapters
       transitions:
         - public: true
-          event: List Adapters
+          event: BLE Adapters
           actions:
             - command: list_adapters
               plugin: ai.reality2.transnet
-    - name: Scan Devices
-      description: List Bluetooth Adapters
+    - name: Rescan BLE
+      description: Rescan for R2 nodes nearby
       transitions:
         - public: true
-          event: Scan Devices
+          event: Rescan
           actions:
-            - command: scan_devices
+            - command: reset_nodes
               plugin: ai.reality2.transnet
+    - name: Scan BLE
+      description: Scan for a set period of time to find R2 nodes nearby
+      transitions:
+        - public: true
+          event: Timed Scan
+          parameters:
+            timeout: number
+          actions:
+            - command: scan_nodes
+              plugin: ai.reality2.transnet
+
+    # --------------------------------------------------------------------------------------------------
+    # WiFi Operations
+    # --------------------------------------------------------------------------------------------------
+    - name: List WiFi Adapters
+      description: List WiFi network adapters on the system
+      transitions:
+        - public: true
+          event: WiFi Adapters
+          actions:
+            - command: wifi_list_adapters
+              plugin: ai.reality2.transnet
+
+    - name: Create Mesh
+      description: Create and start a WiFi mesh interface
+      transitions:
+        - public: true
+          event: Create Mesh
+          parameters:
+            interface: string
+            mesh_interface: string
+            mesh_id: string
+            frequency: number
+          actions:
+            - command: wifi_create_mesh
+              plugin: ai.reality2.transnet
+
+    - name: Destroy Mesh
+      description: Destroy a WiFi mesh interface
+      transitions:
+        - public: true
+          event: Destroy Mesh
+          parameters:
+            mesh_interface: string
+          actions:
+            - command: wifi_destroy_mesh
+              plugin: ai.reality2.transnet
+
+    - name: List Mesh Peers
+      description: List connected peers on a mesh interface
+      transitions:
+        - public: true
+          event: List Mesh Peers
+          parameters:
+            mesh_interface: string
+          actions:
+            - command: wifi_list_peers
+              plugin: ai.reality2.transnet
+
+    - name: Get IPv6 Address
+      description: Get IPv6 link-local address for an interface
+      transitions:
+        - public: true
+          event: Get IPv6
+          parameters:
+            interface: string
+          actions:
+            - command: wifi_get_ipv6
+              plugin: ai.reality2.transnet
+
+    # --------------------------------------------------------------------------------------------------
+    # Results Handler
+    # --------------------------------------------------------------------------------------------------
     - name: Result
       transitions:
         - event: __internal
