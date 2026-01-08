@@ -1,0 +1,9 @@
+plugin:
+  name: dev.jokeapi
+  url: https://v2.jokeapi.dev/joke/Any?type=single
+  method: GET
+  headers:
+    Content-Type: application/json
+  output:
+    key: joke_data
+    event: joke_response

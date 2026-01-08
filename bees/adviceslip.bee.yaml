@@ -1,0 +1,50 @@
+sentant:
+  name: Advice Slip
+  description: Get random advice using the Advice Slip API
+
+  plugins:
+    - name: com.adviceslip.api
+      url: https://api.adviceslip.com/advice
+      method: GET
+      headers:
+        Content-Type: application/json
+      output:
+        key: advice_data
+        event: advice_response
+
+  automations:
+    - name: Advice Provider
+      description: Provides random advice from Advice Slip API
+
+      transitions:
+        # Get random advice
+        - event: "Get Advice"
+          public: true
+          actions:
+            - plugin: com.adviceslip.api
+              command: send
+
+        # Process advice response
+        - event: advice_response
+          actions:
+            - command: set
+              parameters:
+                key: advice_id
+                value:
+                  jsonpath: advice_data.slip.id
+
+            - command: set
+              parameters:
+                key: advice_text
+                value:
+                  jsonpath: advice_data.slip.advice
+
+            - command: signal
+              parameters:
+                public: true
+                event: "Advice Received"
+                parameters:
+                  id:
+                    data: advice_id
+                  advice:
+                    data: advice_text

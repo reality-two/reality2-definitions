@@ -1,0 +1,100 @@
+sentant:
+  name: REST Countries
+  description: Get comprehensive country information using REST Countries API
+
+  plugins:
+    - name: com.restcountries.api
+      url: https://restcountries.com/v3.1/name/__country__
+      method: GET
+      headers:
+        Content-Type: application/json
+      output:
+        key: country_data
+        event: country_response
+
+  automations:
+    - name: Country Info Provider
+      description: Provides detailed information about countries
+
+      transitions:
+        # Get country information
+        - event: "Get Country Info"
+          public: true
+          parameters:
+            country: string
+          actions:
+            - plugin: com.restcountries.api
+              command: send
+
+        # Process country response
+        - event: country_response
+          actions:
+            - command: set
+              parameters:
+                key: country_name
+                value:
+                  jsonpath: country_data.0.name.common
+
+            - command: set
+              parameters:
+                key: official_name
+                value:
+                  jsonpath: country_data.0.name.official
+
+            - command: set
+              parameters:
+                key: capital
+                value:
+                  jsonpath: country_data.0.capital.0
+
+            - command: set
+              parameters:
+                key: region
+                value:
+                  jsonpath: country_data.0.region
+
+            - command: set
+              parameters:
+                key: subregion
+                value:
+                  jsonpath: country_data.0.subregion
+
+            - command: set
+              parameters:
+                key: population
+                value:
+                  jsonpath: country_data.0.population
+
+            - command: set
+              parameters:
+                key: area
+                value:
+                  jsonpath: country_data.0.area
+
+            - command: set
+              parameters:
+                key: flag
+                value:
+                  jsonpath: country_data.0.flag
+
+            - command: signal
+              parameters:
+                public: true
+                event: "Country Info Received"
+                parameters:
+                  name:
+                    data: country_name
+                  official_name:
+                    data: official_name
+                  capital:
+                    data: capital
+                  region:
+                    data: region
+                  subregion:
+                    data: subregion
+                  population:
+                    data: population
+                  area:
+                    data: area
+                  flag:
+                    data: flag

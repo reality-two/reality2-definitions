@@ -1,0 +1,66 @@
+sentant:
+  name: Quotable
+  description: Get random inspirational quotes using Quotable API
+
+  plugins:
+    - name: io.quotable.api
+      url: https://api.quotable.io/random
+      method: GET
+      headers:
+        Content-Type: application/json
+      output:
+        key: quote_data
+        event: quote_response
+
+  automations:
+    - name: Quote Provider
+      description: Provides random inspirational quotes
+
+      transitions:
+        # Get random quote
+        - event: "Get Quote"
+          public: true
+          actions:
+            - plugin: io.quotable.api
+              command: send
+
+        # Process quote response
+        - event: quote_response
+          actions:
+            - command: set
+              parameters:
+                key: quote_id
+                value:
+                  jsonpath: quote_data._id
+
+            - command: set
+              parameters:
+                key: quote_text
+                value:
+                  jsonpath: quote_data.content
+
+            - command: set
+              parameters:
+                key: quote_author
+                value:
+                  jsonpath: quote_data.author
+
+            - command: set
+              parameters:
+                key: quote_tags
+                value:
+                  jsonpath: quote_data.tags
+
+            - command: signal
+              parameters:
+                public: true
+                event: "Quote Received"
+                parameters:
+                  id:
+                    data: quote_id
+                  quote:
+                    data: quote_text
+                  author:
+                    data: quote_author
+                  tags:
+                    data: quote_tags

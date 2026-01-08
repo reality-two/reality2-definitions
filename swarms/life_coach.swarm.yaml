@@ -1,0 +1,175 @@
+# ------------------------------------------------------------------------------------------------------
+# Life Coach Swarm - Provides motivation and guidance through activities, advice, and quotes
+#
+# This swarm coordinates three API-based sentants to provide comprehensive life coaching:
+# - Activity suggestions (Bored API)
+# - Practical advice (Advice Slip)
+# - Inspirational quotes (Quotable)
+#
+# The coordinator sentant collects results from all three sources and provides a unified coaching response.
+# ------------------------------------------------------------------------------------------------------
+swarm:
+  name: Life Coach
+  description: Comprehensive life coaching combining activity suggestions, advice, and inspirational quotes
+
+  sentants:
+    # --------------------------------------------------------------------------------------------------
+    # Life Coach Coordinator
+    # --------------------------------------------------------------------------------------------------
+    - name: Coach Coordinator
+      description: Coordinates life coaching requests across multiple inspiration sources
+
+      data:
+        activity: ""
+        activity_type: ""
+        activity_participants: null
+        advice_id: null
+        advice_text: ""
+        quote_text: ""
+        quote_author: ""
+        responses_received: 0
+
+      automations:
+        - name: coordinator
+          description: Manages the life coaching workflow
+
+          transitions:
+            # Receive coaching request and dispatch to all three services
+            - event: "Get Life Coaching"
+              public: true
+              actions:
+                # Reset response counter
+                - command: set
+                  parameters:
+                    key: responses_received
+                    value: 0
+
+                # Send requests to all three inspiration services
+                - command: send
+                  parameters:
+                    to: Bored API
+                    event: "Get Activity"
+
+                - command: send
+                  parameters:
+                    to: Advice Slip
+                    event: "Get Advice"
+
+                - command: send
+                  parameters:
+                    to: Quotable
+                    event: "Get Quote"
+
+                - command: signal
+                  parameters:
+                    public: true
+                    event: "Coaching Session Started"
+
+            # Receive activity suggestion
+            - event: "Activity Suggestion"
+              actions:
+                - command: set
+                  parameters:
+                    key: activity
+                    value:
+                      data: activity
+
+                - command: set
+                  parameters:
+                    key: activity_type
+                    value:
+                      data: type
+
+                - command: set
+                  parameters:
+                    key: activity_participants
+                    value:
+                      data: participants
+
+                - command: calculate
+                  parameters:
+                    key: responses_received
+                    value: __responses_received__ + 1
+
+                # Check if all responses received
+                - command: send
+                  parameters:
+                    event: check_completion
+
+            # Receive advice
+            - event: "Advice Received"
+              actions:
+                - command: set
+                  parameters:
+                    key: advice_id
+                    value:
+                      data: id
+
+                - command: set
+                  parameters:
+                    key: advice_text
+                    value:
+                      data: advice
+
+                - command: calculate
+                  parameters:
+                    key: responses_received
+                    value: __responses_received__ + 1
+
+                # Check if all responses received
+                - command: send
+                  parameters:
+                    event: check_completion
+
+            # Receive quote
+            - event: "Quote Received"
+              actions:
+                - command: set
+                  parameters:
+                    key: quote_text
+                    value:
+                      data: quote
+
+                - command: set
+                  parameters:
+                    key: quote_author
+                    value:
+                      data: author
+
+                - command: calculate
+                  parameters:
+                    key: responses_received
+                    value: __responses_received__ + 1
+
+                # Check if all responses received
+                - command: send
+                  parameters:
+                    event: check_completion
+
+            # Check if all responses have been received and emit combined result
+            - event: check_completion
+              actions:
+                - command: check
+                  parameters:
+                    key: responses_received
+                    operator: "=="
+                    value: 3
+                    true:
+                      - command: signal
+                        parameters:
+                          public: true
+                          event: "Complete Life Coaching"
+                          parameters:
+                            activity:
+                              data: activity
+                            activity_type:
+                              data: activity_type
+                            participants:
+                              data: activity_participants
+                            advice:
+                              data: advice_text
+                            quote:
+                              data: quote_text
+                            quote_author:
+                              data: quote_author
+    # --------------------------------------------------------------------------------------------------

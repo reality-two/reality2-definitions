@@ -1,0 +1,9 @@
+plugin:
+  name: com.adviceslip.api
+  url: https://api.adviceslip.com/advice
+  method: GET
+  headers:
+    Content-Type: application/json
+  output:
+    key: advice_data
+    event: advice_response

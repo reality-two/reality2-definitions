@@ -50,5 +50,41 @@
   "boredapi": {
     "name": "Bored API",
     "description": "Get random activity suggestions when you're bored. Find something fun to do!"
+  },
+  "agify": {
+    "name": "Agify",
+    "description": "Predict age from a person's name using the Agify.io API."
+  },
+  "genderize": {
+    "name": "Genderize",
+    "description": "Predict gender from a person's name using the Genderize.io API."
+  },
+  "nationalize": {
+    "name": "Nationalize",
+    "description": "Predict nationality from a person's name using the Nationalize.io API."
+  },
+  "adviceslip": {
+    "name": "Advice Slip",
+    "description": "Get random advice from the Advice Slip API. Perfect for daily wisdom!"
+  },
+  "jokeapi": {
+    "name": "JokeAPI",
+    "description": "Get random jokes from JokeAPI. Entertainment and humor on demand."
+  },
+  "numbersapi": {
+    "name": "Numbers API",
+    "description": "Get interesting trivia facts about numbers using the Numbers API."
+  },
+  "quotable": {
+    "name": "Quotable",
+    "description": "Get random inspirational quotes from the Quotable API."
+  },
+  "restcountries": {
+    "name": "REST Countries",
+    "description": "Get comprehensive information about countries using the REST Countries API."
+  },
+  "transnet_test": {
+    "name": "Transnet Test",
+    "description": "Test Bluetooth Low Energy (BLE) functionality and list available Bluetooth adapters."
   }
 }
