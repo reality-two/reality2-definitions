@@ -13,7 +13,7 @@ sentant:
           event: "Back up Data"
           parameters:
             to_store: "string"
-            
+
           actions:
             - command: set
               parameters:
@@ -55,4 +55,3 @@ sentant:
               parameters:
                 event: "deleted"
                 public: true
- 

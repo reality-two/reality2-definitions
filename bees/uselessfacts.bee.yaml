@@ -1,0 +1,58 @@
+sentant:
+  name: Useless Facts
+  description: Get random interesting facts using Useless Facts API
+
+  plugins:
+    - name: pl.jsph.uselessfacts.api
+      url: https://uselessfacts.jsph.pl/api/v2/facts/random?language=en
+      method: GET
+      headers:
+        Content-Type: application/json
+      output:
+        key: fact_data
+        event: fact_response
+
+  automations:
+    - name: Useless Facts Provider
+      description: Provides random interesting facts
+
+      transitions:
+        # Get random fact
+        - event: "Get Fact"
+          public: true
+          actions:
+            - plugin: pl.jsph.uselessfacts.api
+              command: send
+
+        # Process fact response
+        - event: fact_response
+          actions:
+            - command: set
+              parameters:
+                key: fact_id
+                value:
+                  jsonpath: fact_data.id
+
+            - command: set
+              parameters:
+                key: fact_text
+                value:
+                  jsonpath: fact_data.text
+
+            - command: set
+              parameters:
+                key: fact_source
+                value:
+                  jsonpath: fact_data.source
+
+            - command: signal
+              parameters:
+                public: true
+                event: "Fact Received"
+                parameters:
+                  id:
+                    data: fact_id
+                  fact:
+                    data: fact_text
+                  source:
+                    data: fact_source

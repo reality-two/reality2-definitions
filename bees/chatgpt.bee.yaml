@@ -54,10 +54,9 @@ sentant:
     - name: ChatGPT # This is the name of the automation.
       description: This is a test automation. # This is the description of the automation.
       transitions: # This is a list of transitions, so begin with a dash.
-
-          # Send a message (question) to ChatGPT, initiated from an event.
+        # Send a message (question) to ChatGPT, initiated from an event.
         - event: "Ask ChatGPT"
-          parameters: 
+          parameters:
             question: string
           public: true
           actions:

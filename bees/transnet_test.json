@@ -1,0 +1,22 @@
+{
+  "sentant": {
+    "name": "Transnet Test",
+    "automations": [
+      {
+        "name": "Automation1",
+        "transitions": [
+          {
+            "public": false,
+            "event": "__internal",
+            "actions": [
+              {
+                "command": "signal",
+                "parameters": { "event": "result", "public": true }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

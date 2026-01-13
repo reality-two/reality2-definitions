@@ -1,0 +1,64 @@
+sentant:
+  name: Genderize
+  description: Predict gender from a person's name using Genderize.io API
+
+  plugins:
+    - name: io.genderize.api
+      url: https://api.genderize.io/?name=__name__
+      method: GET
+      headers:
+        Content-Type: application/json
+      output:
+        key: gender_data
+        event: gender_response
+
+  automations:
+    - name: Gender Predictor
+      description: Predicts gender based on name
+
+      transitions:
+        # Get gender prediction for a name
+        - event: "Predict Gender"
+          public: true
+          parameters:
+            name: string
+          actions:
+            - plugin: io.genderize.api
+              command: send
+
+        # Process gender prediction response
+        - event: gender_response
+          actions:
+            - command: set
+              parameters:
+                key: name
+                value:
+                  jsonpath: gender_data.name
+            - command: set
+              parameters:
+                key: gender
+                value:
+                  jsonpath: gender_data.gender
+            - command: set
+              parameters:
+                key: probability
+                value:
+                  jsonpath: gender_data.probability
+            - command: set
+              parameters:
+                key: count
+                value:
+                  jsonpath: gender_data.count
+            - command: signal
+              parameters:
+                public: true
+                event: "Gender Prediction"
+                parameters:
+                  name:
+                    data: name
+                  gender:
+                    data: gender
+                  probability:
+                    data: probability
+                  count:
+                    data: count

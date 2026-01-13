@@ -1,0 +1,9 @@
+plugin:
+  name: com.restcountries.api
+  url: https://restcountries.com/v3.1/name/__country__
+  method: GET
+  headers:
+    Content-Type: application/json
+  output:
+    key: country_data
+    event: country_response

@@ -1,0 +1,57 @@
+sentant:
+  name: Nationalize
+  description: Predict nationality from a person's name using Nationalize.io API
+
+  plugins:
+    - name: io.nationalize.api
+      url: https://api.nationalize.io/?name=__name__
+      method: GET
+      headers:
+        Content-Type: application/json
+      output:
+        key: nationality_data
+        event: nationality_response
+
+  automations:
+    - name: Nationality Predictor
+      description: Predicts nationality based on name
+
+      transitions:
+        # Get nationality prediction for a name
+        - event: "Predict Nationality"
+          public: true
+          parameters:
+            name: string
+          actions:
+            - plugin: io.nationalize.api
+              command: send
+
+        # Process nationality prediction response
+        - event: nationality_response
+          actions:
+            - command: set
+              parameters:
+                key: name
+                value:
+                  jsonpath: nationality_data.name
+            - command: set
+              parameters:
+                key: country_id
+                value:
+                  jsonpath: nationality_data.country.0.country_id
+            - command: set
+              parameters:
+                key: probability
+                value:
+                  jsonpath: nationality_data.country.0.probability
+            - command: signal
+              parameters:
+                public: true
+                event: "Nationality Prediction"
+                parameters:
+                  name:
+                    data: name
+                  country_id:
+                    data: country_id
+                  probability:
+                    data: probability

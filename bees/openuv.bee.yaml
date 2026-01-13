@@ -13,7 +13,7 @@ sentant:
         lng: __longitude__
       output:
         key: uv
-        value: ''
+        value: ""
         event: uv_out
   automations:
     - name: get_uv

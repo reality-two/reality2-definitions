@@ -1,0 +1,10 @@
+plugin:
+  name: com.boredapi
+  url: https://www.boredapi.com/api/activity
+  method: GET
+  headers:
+    Content-Type: application/json
+  output:
+    key: activity_data
+    value: ""
+    event: activity_response

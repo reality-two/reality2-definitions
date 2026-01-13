@@ -1,18 +1,54 @@
 {
-    "com.openai.api": {
-        "name": "OpenAI ChatGPT API",
-        "description": "API to ChatGPT to ask a single question, without history."
-    },
-    "io.openuv.api": {
-        "name": "OpenUV GET API",
-        "description": "API to OpenUV, a free site to get details about burn time and sun rising and setting times."
-    },
-    "io.zenquotes.api": {
-        "name": "Zenquote GET API",
-        "description": "API to Zenquotes, a free site to get random inspirational quotes."
-    },
-    "com.twilio.api":{
-        "name": "Twilio SMS API",
-        "description": "Send a TXT message via the Twilio API."        
-    }
+  "com.openai.api": {
+    "name": "OpenAI ChatGPT API",
+    "description": "API to ChatGPT to ask a single question, without history."
+  },
+  "io.openuv.api": {
+    "name": "OpenUV GET API",
+    "description": "API to OpenUV, a free site to get details about burn time and sun rising and setting times."
+  },
+  "io.zenquotes.api": {
+    "name": "Zenquote GET API",
+    "description": "API to Zenquotes, a free site to get random inspirational quotes."
+  },
+  "com.twilio.api": {
+    "name": "Twilio SMS API",
+    "description": "Send a TXT message via the Twilio API."
+  },
+  "com.boredapi": {
+    "name": "Bored API",
+    "description": "Get random activity suggestions from BoredAPI.com - no authentication required."
+  },
+  "io.agify.api": {
+    "name": "Agify API",
+    "description": "Predict age from names using Agify.io - no authentication required."
+  },
+  "io.genderize.api": {
+    "name": "Genderize API",
+    "description": "Predict gender from names using Genderize.io - no authentication required."
+  },
+  "io.nationalize.api": {
+    "name": "Nationalize API",
+    "description": "Predict nationality from names using Nationalize.io - no authentication required."
+  },
+  "com.adviceslip.api": {
+    "name": "Advice Slip API",
+    "description": "Get random advice from AdviceSlip.com - no authentication required."
+  },
+  "dev.jokeapi": {
+    "name": "JokeAPI",
+    "description": "Get random jokes from JokeAPI.dev - no authentication required."
+  },
+  "pl.jsph.uselessfacts.api": {
+    "name": "Useless Facts API",
+    "description": "Get random interesting facts from UselessFacts.jsph.pl - no authentication required."
+  },
+  "io.quotable.api": {
+    "name": "Quotable API",
+    "description": "Get random inspirational quotes from Quotable.io - no authentication required."
+  },
+  "com.restcountries.api": {
+    "name": "REST Countries API",
+    "description": "Get comprehensive country information from RestCountries.com - no authentication required."
+  }
 }

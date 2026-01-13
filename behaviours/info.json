@@ -1,6 +1,6 @@
 {
-    "com.openai.api": {
-        "name": "OpenAI ChatGPT",
-        "description": "Ask a single question of ChatGPT using the chatGPT plugin / antenna."
-    }
+  "com.openai.api": {
+    "name": "OpenAI ChatGPT",
+    "description": "Ask a single question of ChatGPT using the chatGPT plugin / antenna."
+  }
 }

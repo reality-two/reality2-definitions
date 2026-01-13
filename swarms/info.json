@@ -1,10 +1,10 @@
 {
-    "ai.reality2.pi_light_and_switch": {
-        "name": "Raspberry PI Light and Switch",
-        "description": "A swarm of Bees that act as a light and switch, sending signals to another that can actually turn on and off an LED on a Raspberry PI.  You will also need to run the python client in client-SBC/raaspberry_pi."
-    },
-    "ai.reality2.strobe": {
-        "name": "Strobing Light with Switch",
-        "description": "A switch that toggles a strobe light on and off.  The frequency of strobing is set as a variable."
-    }
+  "ai.reality2.pi_light_and_switch": {
+    "name": "Raspberry PI Light and Switch",
+    "description": "A swarm of Bees that act as a light and switch, sending signals to another that can actually turn on and off an LED on a Raspberry PI.  You will also need to run the python client in client-SBC/raaspberry_pi."
+  },
+  "ai.reality2.strobe": {
+    "name": "Strobing Light with Switch",
+    "description": "A switch that toggles a strobe light on and off.  The frequency of strobing is set as a variable."
+  }
 }

@@ -1,0 +1,9 @@
+plugin:
+  name: io.quotable.api
+  url: http://api.quotable.io/random
+  method: GET
+  headers:
+    Content-Type: application/json
+  output:
+    key: quote_data
+    event: quote_response

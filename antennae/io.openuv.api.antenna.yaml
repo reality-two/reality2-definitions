@@ -10,5 +10,5 @@ plugin:
     lng: __lng__
   output:
     key: uv
-    value: ''
+    value: ""
     event: uv_out

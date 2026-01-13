@@ -1,0 +1,9 @@
+plugin:
+  name: io.nationalize.api
+  url: https://api.nationalize.io/?name=__name__
+  method: GET
+  headers:
+    Content-Type: application/json
+  output:
+    key: nationality_data
+    event: nationality_response

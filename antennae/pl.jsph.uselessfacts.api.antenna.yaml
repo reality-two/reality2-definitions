@@ -1,0 +1,9 @@
+plugin:
+  name: pl.jsph.uselessfacts.api
+  url: https://uselessfacts.jsph.pl/api/v2/facts/random?language=en
+  method: GET
+  headers:
+    Content-Type: application/json
+  output:
+    key: fact_data
+    event: fact_response

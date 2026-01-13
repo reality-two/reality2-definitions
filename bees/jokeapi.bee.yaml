@@ -1,0 +1,66 @@
+sentant:
+  name: JokeAPI
+  description: Get random jokes using JokeAPI
+
+  plugins:
+    - name: dev.jokeapi
+      url: https://v2.jokeapi.dev/joke/Any?type=single
+      method: GET
+      headers:
+        Content-Type: application/json
+      output:
+        key: joke_data
+        event: joke_response
+
+  automations:
+    - name: Joke Provider
+      description: Provides random jokes from JokeAPI
+
+      transitions:
+        # Get random joke
+        - event: "Get Joke"
+          public: true
+          actions:
+            - plugin: dev.jokeapi
+              command: send
+
+        # Process joke response
+        - event: joke_response
+          actions:
+            - command: set
+              parameters:
+                key: joke_id
+                value:
+                  jsonpath: joke_data.id
+
+            - command: set
+              parameters:
+                key: joke_text
+                value:
+                  jsonpath: joke_data.joke
+
+            - command: set
+              parameters:
+                key: joke_category
+                value:
+                  jsonpath: joke_data.category
+
+            - command: set
+              parameters:
+                key: joke_safe
+                value:
+                  jsonpath: joke_data.safe
+
+            - command: signal
+              parameters:
+                public: true
+                event: "Joke Received"
+                parameters:
+                  id:
+                    data: joke_id
+                  joke:
+                    data: joke_text
+                  category:
+                    data: joke_category
+                  safe:
+                    data: joke_safe
