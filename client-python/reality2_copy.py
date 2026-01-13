@@ -145,7 +145,7 @@ class Reality2:
     def __sentant_send (self, details):
         return (
         """
-        mutation SentantSend($id: UUID4!, $event: String!, $parameters: Json, $passthrough: Json) {
+        mutation SentantSend($id: String!, $event: String!, $parameters: Json, $passthrough: Json) {
             sentantSend(id: $id, event: $event, parameters: $parameters, passthrough: $passthrough) {
             """ + details + """
             }
