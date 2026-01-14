@@ -444,14 +444,11 @@ class Reality2:
     def swarmLoad (self, definition: str, passthrough: Dict[str, Any] = {}, details: str = "id name") -> Dict[str, Any]:
         return {**passthrough, **self.__graphql_post(self.__swarm_load(details), {"definition": definition})}
 
-    def sentantSend (self, id: str, event: str, parameters: Dict[str, Any] = {}, passthrough: Dict[str, Any] = {}, details: str = "id name") -> Dict[str, Any]:
-        return self.__graphql_post(self.__sentant_send(details), {"id": id, "event": event, "parameters": json.dumps(parameters), "passthrough": json.dumps(passthrough)})
-    
-    def sentantSendByName (self, name: str, event: str, parameters: Dict[str, Any] = {}, passthrough: Dict[str, Any] = {}, details: str = "id name") -> Dict[str, Any]:
-        """Send an event to a Sentant by name.
+    def sentantSend (self, path: str, event: str, parameters: Dict[str, Any] = {}, passthrough: Dict[str, Any] = {}, details: str = "id name") -> Dict[str, Any]:
+        """Send an event to a Sentant.
 
         Args:
-            name: Name of the Sentant
+            path: Sentant path - can be: name, UUID, or node|sentant (using names or UUIDs)
             event: Event name
             parameters: Event parameters
             passthrough: Passthrough data
@@ -459,26 +456,8 @@ class Reality2:
 
         Returns:
             Response data dict
-
-        Raises:
-            Reality2Error: If Sentant not found or send fails
         """
-        try:
-            response = self.sentantGetByName(name, {}, details="id")
-            if "sentantGet" in response and response["sentantGet"] is not None:
-                id = response["sentantGet"]["id"]
-                return self.__graphql_post(
-                    self.__sentant_send(details),
-                    {"id": id, "event": event, "parameters": json.dumps(parameters), "passthrough": json.dumps(passthrough)}
-                )
-            else:
-                logger.warning(f"Sentant '{name}' not found")
-                raise Reality2ResponseError(f"Sentant '{name}' not found")
-        except Reality2Error:
-            raise
-        except (KeyError, TypeError) as e:
-            logger.error(f"Error sending to Sentant '{name}': {e}")
-            raise Reality2ResponseError(f"Invalid response when sending to '{name}'") from e
+        return self.__graphql_post(self.__sentant_send(details), {"path": path, "event": event, "parameters": json.dumps(parameters), "passthrough": json.dumps(passthrough)})
 
     def sentantUnload (self, id: str, passthrough: Dict[str, Any] = {}, details: str = "id name") -> Dict[str, Any]:
         return {**passthrough, **self.__graphql_post(self.__sentant_unload(details), {"id": id})}
@@ -992,7 +971,7 @@ class Reality2:
         return GraphQLQuery.mutation(
             "SentantSend",
             details,
-            {"id": "String!", "event": "String!", "parameters": "Json", "passthrough": "Json"}
+            {"path": "String!", "event": "String!", "parameters": "Json", "passthrough": "Json"}
         )
     # --------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -1248,21 +1227,29 @@ if ASYNC_AVAILABLE:
 
         async def sentantSend(
             self,
-            id: str,
+            path: str,
             event: str,
             parameters: Dict[str, Any] = {},
             passthrough: Dict[str, Any] = {},
             details: str = "id name"
         ) -> Dict[str, Any]:
-            """Async send an event to a Sentant."""
+            """Async send an event to a Sentant.
+
+            Args:
+                path: Sentant path - can be: name, UUID, or node|sentant (using names or UUIDs)
+                event: Event name
+                parameters: Event parameters
+                passthrough: Passthrough data
+                details: GraphQL fields to return
+            """
             query = GraphQLQuery.mutation(
                 "SentantSend",
                 details,
-                {"id": "String!", "event": "String!", "parameters": "Json", "passthrough": "Json"}
+                {"path": "String!", "event": "String!", "parameters": "Json", "passthrough": "Json"}
             )
             return await self.__graphql_post_async(
                 query,
-                {"id": id, "event": event, "parameters": json.dumps(parameters), "passthrough": json.dumps(passthrough)}
+                {"path": path, "event": event, "parameters": json.dumps(parameters), "passthrough": json.dumps(passthrough)}
             )
 
         async def sentantUnload(self, id: str, passthrough: Dict[str, Any] = {}, details: str = "id name") -> Dict[str, Any]:
